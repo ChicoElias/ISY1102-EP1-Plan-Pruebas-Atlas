@@ -4,7 +4,7 @@ Repositorio de la Evaluación Parcial 1 de **ISY1102 Seguridad y Calidad en el D
 
 Trabajamos la Forma A del caso semestral: un plan de pruebas de calidad, seguridad y cumplimiento normativo para Atlas, la plataforma de CreaLab SpA para gestionar clientes y contratos de pymes.
 
-**Integrantes:** Elías Robinson Delgado Manríquez y Rolando Aldana<br>
+**Integrantes:** Elías Delgado Manríquez y Rolando Aldana<br>
 **Docente:** Johnnathan René Cubillos Flores
 
 Informe: [PDF](entregables/EP1_ISY1102_Informe_Plan_de_Pruebas_Atlas.pdf) · [Word](entregables/EP1_ISY1102_Informe_Plan_de_Pruebas_Atlas.docx)
