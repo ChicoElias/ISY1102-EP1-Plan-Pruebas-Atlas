@@ -1,6 +1,6 @@
 # 8. Cronograma de ejecución
 
-Planificación referencial de seis semanas, alineada con las etapas de la sección 4.2.
+Proponemos un cronograma de referencia de seis semanas, siguiendo las etapas de la sección 4.2.
 
 | Semana | Etapa | Actividades principales | Responsable | Hito |
 |---|---|---|---|---|

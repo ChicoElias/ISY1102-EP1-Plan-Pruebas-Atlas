@@ -13,7 +13,7 @@
 | Compatibilidad (NFR-COMPAT) | 2 | 2 | 0 | 100 % |
 | **Total** | **42** | **37 (88 %)** | **5 (12 %)** | **100 %** |
 
-Todos los requerimientos de la ERS quedan trazados. El 88 % cuenta con un caso de prueba documentado en esta iteración y el resto se cubre mediante suites de regresión o actividades específicas que se detallarán como casos en la iteración 2.
+Todos los requerimientos de la ERS quedan trazados. El 88 % ya tiene un caso documentado; el resto se cubre con suites de regresión o actividades puntuales que detallaremos como casos en la iteración 2.
 
 ## 11.2 Distribución por tipo de prueba
 
@@ -23,7 +23,7 @@ Todos los requerimientos de la ERS quedan trazados. El 88 % cuenta con un caso d
 | Seguridad | CP-02, CP-04, CP-05, CP-09, CP-10 | 38 % |
 | No funcional (rendimiento, usabilidad, accesibilidad, compatibilidad) | CP-11, CP-12, CP-13 | 23 % |
 
-El peso de las pruebas de seguridad es deliberado: los cinco riesgos P1 identificados en la sección 4.3 tienen al menos un caso asociado, y todos ellos involucran datos personales o bancarios.
+Las pruebas de seguridad tienen más peso a propósito: cada riesgo P1 de la sección 4.3 tiene al menos un caso asociado, y todos involucran datos personales o bancarios.
 
 ## 11.3 Coherencia con los objetivos y estándares
 
@@ -45,4 +45,6 @@ El peso de las pruebas de seguridad es deliberado: los cinco riesgos P1 identifi
 
 ## 11.5 Conclusión
 
-El plan es coherente con la naturaleza de Atlas: un sistema multiempresa que trata datos personales y bancarios de terceros. La estrategia mixta basada en riesgo concentra el esfuerzo en el control de acceso y la protección de datos, sin descuidar el rendimiento y la usabilidad para adultos mayores que la ERS declara como prioritarios. La trazabilidad completa entre requerimientos, casos y controles normativos permite, además de detectar defectos, reunir evidencia de cumplimiento frente a la Ley 19.628, la Ley 21.719 y los estándares ISO/IEC y OWASP. Las brechas detectadas en la propia ERS se documentan como insumo para la siguiente iteración del caso semestral.
+Atlas es un sistema multiempresa que maneja datos personales y bancarios de terceros, y el plan responde a eso. La estrategia basada en riesgo pone el mayor esfuerzo en control de acceso y protección de datos, sin dejar de lado el rendimiento ni la usabilidad para adultos mayores, que la ERS marca como prioritarios.
+
+La trazabilidad entre requerimientos, casos y normas sirve para detectar defectos y, al mismo tiempo, para reunir evidencia de cumplimiento frente a la Ley 19.628, la Ley 21.719 y los estándares ISO/IEC y OWASP. Las brechas que encontramos en la ERS quedan documentadas para la siguiente iteración del caso semestral.

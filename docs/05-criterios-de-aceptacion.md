@@ -1,6 +1,6 @@
 # 5. Criterios de aceptación transversales
 
-Estos criterios se aplican a todos los casos de prueba, además del criterio específico de cada caso. Un caso se considera **aprobado** solo si cumple su resultado esperado y no infringe ninguno de los criterios transversales.
+Estos criterios aplican a todos los casos, además del criterio propio de cada uno. Un caso queda **aprobado** solo si obtiene el resultado esperado y no incumple ninguno de los puntos siguientes.
 
 ## 5.1 Criterios funcionales
 

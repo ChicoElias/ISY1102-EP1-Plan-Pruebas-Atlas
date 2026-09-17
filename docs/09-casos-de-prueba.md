@@ -1,6 +1,6 @@
 # 9. Diseño de casos de prueba
 
-Se diseñaron trece casos representativos que cubren requerimientos funcionales, reglas de negocio y requerimientos no funcionales de seguridad, rendimiento, usabilidad, accesibilidad y compatibilidad. Los códigos de requerimiento corresponden a la ERS v1.1 de Atlas.
+Diseñamos trece casos que cubren requerimientos funcionales, reglas de negocio y requerimientos no funcionales de seguridad, rendimiento, usabilidad, accesibilidad y compatibilidad. Los códigos de requerimiento son los de la ERS v1.1.
 
 ## CP-01 – Inicio de sesión con credenciales válidas
 

@@ -1,6 +1,6 @@
 # 2. Criterios de calidad, seguridad y cumplimiento normativo
 
-La calidad, la seguridad y el cumplimiento legal no se tratan como dimensiones separadas. Un defecto de control de acceso en Atlas es a la vez un problema de calidad (el sistema no hace lo especificado), de seguridad (se rompe la confidencialidad) y legal (se vulnera el deber de resguardo de datos personales). Por eso cada criterio de esta sección se vincula con un requerimiento de la ERS y con una referencia normativa.
+En Atlas, calidad, seguridad y cumplimiento legal están conectados. Por ejemplo, una falla en el control de acceso es un problema de calidad (el sistema no hace lo especificado), de seguridad (se pierde la confidencialidad) y legal (no se resguardan los datos personales). Por eso cada criterio de esta sección está ligado a un requerimiento de la ERS y a una referencia normativa.
 
 ## 2.1 Criterios de calidad (ISO/IEC 25010)
 
@@ -17,7 +17,7 @@ La calidad, la seguridad y el cumplimiento legal no se tratan como dimensiones s
 
 ## 2.2 Criterios de seguridad
 
-Los criterios de seguridad se basan en la tríada de confidencialidad, integridad y disponibilidad, y se contrastan con OWASP Top 10 (2021) y OWASP ASVS 4.0 nivel 2, nivel recomendado para aplicaciones que manejan datos personales y financieros.
+Tomamos como base la tríada confidencialidad, integridad y disponibilidad, y contrastamos cada criterio con OWASP Top 10 (2021) y OWASP ASVS 4.0 nivel 2, que es el nivel recomendado para aplicaciones con datos personales y financieros.
 
 | Ámbito | Criterio | Requerimiento ERS | Referencia |
 |---|---|---|---|
@@ -46,7 +46,7 @@ Los criterios de seguridad se basan en la tríada de confidencialidad, integrida
 
 ## 2.4 Observación crítica sobre la ERS
 
-Durante el análisis se detectaron puntos que conviene aclarar con el cliente antes de ejecutar las pruebas, porque afectan directamente los criterios de aceptación:
+Al revisar la ERS encontramos puntos que conviene aclarar con el cliente antes de ejecutar las pruebas, ya que afectan los criterios de aceptación:
 
 - La ERS fija un tamaño de fuente de 12 px, lo que resulta insuficiente para el público adulto mayor declarado en el alcance. Se recomienda un mínimo de 16 px para texto base, en línea con NFR-USAB-1 y las pautas WCAG.
 - El rol editor aparece definido como "sólo visualización", pero RF-4.1 indica que "los usuarios" pueden crear clientes. Se asume que prevalecen RF-3.2 y RB-4, es decir, que solo el administrador escribe datos.

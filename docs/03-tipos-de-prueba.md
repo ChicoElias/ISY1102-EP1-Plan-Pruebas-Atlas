@@ -1,6 +1,6 @@
 # 3. Tipos de prueba y su justificación
 
-Las pruebas se clasifican en funcionales, que verifican qué hace el sistema, y no funcionales, que verifican cómo lo hace. Las pruebas de seguridad se tratan como una categoría propia por el tipo de datos que maneja Atlas y por su peso en el cumplimiento legal.
+Separamos las pruebas en funcionales (qué hace el sistema) y no funcionales (cómo lo hace). Las de seguridad van en un grupo aparte por el tipo de datos que maneja Atlas y su peso en el cumplimiento legal.
 
 ## 3.1 Pruebas funcionales
 
@@ -42,4 +42,9 @@ Las pruebas se clasifican en funcionales, que verifican qué hace el sistema, y 
 
 ## 3.4 Justificación de la selección
 
-La combinación responde al perfil de riesgo del producto. Atlas es transaccional y multiempresa, por lo que un error de autorización tiene impacto directo sobre datos de terceros; por eso las pruebas de control de acceso tienen prioridad alta y se automatizan. El público adulto mayor justifica pruebas de usabilidad con usuarios reales, que ninguna herramienta automática reemplaza. Los umbrales numéricos de NFR-PERF solo pueden demostrarse con pruebas de carga medibles, y la obligación legal de proteger datos personales exige evidencias de cifrado, trazabilidad y ausencia de vulnerabilidades críticas.
+Elegimos esta combinación según el riesgo del producto:
+
+- Atlas es transaccional y multiempresa, así que un error de autorización expone datos de terceros. Por eso las pruebas de control de acceso tienen prioridad alta y se automatizan.
+- El público adulto mayor requiere pruebas de usabilidad con usuarios reales; ninguna herramienta automática las reemplaza.
+- Los umbrales de NFR-PERF solo se pueden demostrar con pruebas de carga medibles.
+- La protección de datos personales exige evidencia de cifrado, trazabilidad y ausencia de vulnerabilidades críticas.

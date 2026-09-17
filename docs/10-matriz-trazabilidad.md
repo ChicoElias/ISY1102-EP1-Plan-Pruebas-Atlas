@@ -1,6 +1,6 @@
 # 10. Matriz de trazabilidad
 
-La matriz relaciona cada requerimiento de la ERS con los casos de prueba que lo verifican, el tipo de prueba y el control normativo o estándar que respalda. Los requerimientos sin caso detallado en esta iteración se cubren con la suite indicada y se registran para la iteración 2.
+La matriz vincula cada requerimiento de la ERS con los casos que lo verifican, el tipo de prueba y la norma o estándar relacionado. Los requerimientos que todavía no tienen caso detallado se cubren con la suite indicada y quedan anotados para la iteración 2.
 
 ## 10.1 Requerimientos funcionales y reglas de negocio
 

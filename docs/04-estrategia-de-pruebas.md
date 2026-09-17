@@ -2,13 +2,13 @@
 
 ## 4.1 Enfoque
 
-Se adopta un **enfoque mixto basado en riesgo**. Las pruebas repetitivas y de regresión (unitarias, API, control de acceso, rendimiento y análisis de seguridad automatizado) se automatizan e integran al pipeline de integración continua. Las pruebas que requieren criterio humano (usabilidad, accesibilidad con lector de pantalla, exploratorias y de penetración manual) se ejecutan de forma manual.
+Usamos un **enfoque mixto basado en riesgo**. Lo repetitivo (unitarias, API, control de acceso, rendimiento, regresión y análisis de seguridad automatizado) se automatiza y corre en el pipeline de integración continua. Lo que necesita criterio humano (usabilidad, accesibilidad con lector de pantalla, pruebas exploratorias y pentest manual) se ejecuta a mano.
 
-La estrategia sigue el principio de *shift-left*: la seguridad y la calidad se verifican desde el inicio del desarrollo y no solo al final, lo que es coherente con la exigencia de seguridad por diseño de la Ley 21.663 y con la responsabilidad proactiva de la Ley 21.719.
+Aplicamos *shift-left*: calidad y seguridad se verifican desde el inicio del desarrollo y no solo al final. Esto va en línea con la seguridad por diseño de la Ley 21.663 y la responsabilidad proactiva de la Ley 21.719.
 
 ## 4.2 Niveles y etapas del proceso
 
-El proceso se basa en ISO/IEC/IEEE 29119 y se organiza en cinco etapas:
+Tomando como referencia ISO/IEC/IEEE 29119, el proceso tiene cinco etapas:
 
 | Etapa | Actividades | Entregable |
 |---|---|---|
@@ -20,7 +20,7 @@ El proceso se basa en ISO/IEC/IEEE 29119 y se organiza en cinco etapas:
 
 ## 4.3 Priorización basada en riesgo
 
-La prioridad se calcula como probabilidad por impacto, considerando la criticidad legal del dato involucrado.
+La prioridad se obtiene de probabilidad × impacto, considerando además qué tan sensible es el dato involucrado.
 
 | Prioridad | Riesgo | Requerimientos | Justificación |
 |---|---|---|---|

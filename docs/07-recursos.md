@@ -32,4 +32,4 @@
 | QA / Staging | Pruebas de sistema, API, seguridad, rendimiento y usabilidad | Réplica de producción con TLS, storage interno y BD cifrada; datos ficticios o anonimizados |
 | Preproducción | UAT y prueba final de carga | Configuración idéntica a producción |
 
-Los datos personales reales no se usan en ningún ambiente de prueba. Esta decisión responde al principio de minimización de la Ley 21.719 y evita que un ambiente con menos controles se convierta en una fuente de filtración.
+En ningún ambiente de prueba se usan datos personales reales. Así aplicamos el principio de minimización de la Ley 21.719 y evitamos que un ambiente con menos controles termine filtrando información.
