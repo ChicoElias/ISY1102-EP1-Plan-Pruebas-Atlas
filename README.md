@@ -40,11 +40,3 @@ Informe: [PDF](entregables/EP1_ISY1102_Informe_Plan_de_Pruebas_Atlas.pdf) · [Wo
   5. [Trazabilidad y cobertura](docs/05-trazabilidad-y-cobertura.md)
   6. [Conclusión y referencias](docs/06-conclusion-y-referencias.md)
 - `anexos/` matriz de trazabilidad en CSV.
-
-## Avance
-
-- [x] Análisis de la ERS y clasificación del producto
-- [x] Criterios de calidad, seguridad y normativa
-- [x] Estrategia, tipos de prueba, herramientas y recursos
-- [x] 8 casos de prueba y matriz de trazabilidad
-- [ ] Iteración 2: casos pendientes y ajustes según retroalimentación
