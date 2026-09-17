@@ -13,8 +13,8 @@ En este repositorio está el informe de la primera iteración del caso semestral
 | **Asignatura** | ISY1102 – Seguridad y Calidad en el Desarrollo de Software |
 | **Sección** | 004V |
 | **Docente** | Johnnathan René Cubillos Flores |
-| **Integrantes** | Elías Robinson Delgado Manríquez<br>Rolando Aldana |
-| **Período** | 2026-2 |
+| **Integrantes** | Elías Delgado Manríquez<br>Rolando Aldana |
+
 
 ## Sistema bajo prueba
 
