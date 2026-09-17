@@ -1,6 +1,6 @@
 # Plan de Pruebas – Sistema de Gestión Atlas
 
-**ISY1102 – Seguridad y Calidad en el Desarrollo de Software**
+**ISY1102 – Seguridad y Calidad en el Desarrollo de Software**<br>
 Evaluación Parcial N°1 · Encargo grupal (17 %) · Caso semestral, Forma A
 
 Repositorio del informe semestral, iteración 1: diseño de un plan de pruebas orientado a garantizar la calidad, la seguridad y la conformidad legal de **Atlas**, plataforma web de gestión de clientes y contratos para pymes chilenas (CreaLab SpA; React + Express + PostgreSQL).
