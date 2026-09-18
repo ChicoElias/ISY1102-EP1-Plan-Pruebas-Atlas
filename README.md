@@ -1,6 +1,6 @@
 # Plan de pruebas – Sistema de Gestión Atlas
 
-Repositorio de la Evaluación Parcial 1 de **ISY1102 Seguridad y Calidad en el Desarrollo de Software** (Duoc UC, sección 004V).
+Repositorio de la Evaluación Parcial 1 de **Seguridad y Calidad en el Desarrollo de Software** (Duoc UC, sección 004V).
 
 Trabajamos la Forma A del caso semestral: un plan de pruebas de calidad, seguridad y cumplimiento normativo para Atlas, la plataforma de CreaLab SpA para gestionar clientes y contratos de pymes.
 
