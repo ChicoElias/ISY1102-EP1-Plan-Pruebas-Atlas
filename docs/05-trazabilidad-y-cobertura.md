@@ -46,12 +46,12 @@ La matriz relaciona cada requerimiento de la ERS con el caso de prueba que lo ve
 | NFR-USAB-4 | Flujo cliente → contratos | CP-08 | Usabilidad | ISO/IEC 25010 |
 | NFR-DIS-1 | Disponibilidad de 99,5 % | CP-07 y monitoreo | Confiabilidad | ISO/IEC 25010 |
 | NFR-DIS-2 | Mantenimiento y migración segura | Prueba de migración | Mantenibilidad | ISO/IEC 27001 |
-| NFR-COMPAT-1 | Navegadores modernos | Suite Playwright multi-navegador | Compatibilidad | ISO/IEC 25010 |
-| NFR-COMPAT-2 | Responsivo en móvil y tablet | Suite Playwright y BrowserStack | Compatibilidad | ISO/IEC 25010 |
+| NFR-COMPAT-1 | Navegadores modernos | CP-09 | Compatibilidad | ISO/IEC 25010 |
+| NFR-COMPAT-2 | Responsivo en móvil y tablet | CP-09 | Compatibilidad | ISO/IEC 25010 |
 
 ## 5.2 Cobertura
 
-La ERS tiene 42 requerimientos entre funcionales, reglas de negocio y no funcionales. Todos quedan trazados a una prueba. De ellos, 25 (60 %) tienen un caso detallado en este informe y los 17 restantes están cubiertos por una suite o actividad planificada.
+La ERS tiene 42 requerimientos entre funcionales, reglas de negocio y no funcionales. Todos quedan trazados a una prueba. De ellos, 27 (64 %) tienen un caso detallado en este informe y los 15 restantes están cubiertos por una suite o actividad planificada.
 
 | Grupo | Total | Con caso detallado | Con actividad planificada |
 |---|---|---|---|
@@ -61,17 +61,17 @@ La ERS tiene 42 requerimientos entre funcionales, reglas de negocio y no funcion
 | Rendimiento (NFR-PERF) | 3 | 3 | 0 |
 | Usabilidad (NFR-USAB) | 4 | 4 | 0 |
 | Disponibilidad (NFR-DIS) | 2 | 1 | 1 |
-| Compatibilidad (NFR-COMPAT) | 2 | 0 | 2 |
-| **Total** | **42** | **25** | **17** |
+| Compatibilidad (NFR-COMPAT) | 2 | 2 | 0 |
+| **Total** | **42** | **27** | **15** |
 
 El porcentaje de casos detallados es menor en los requerimientos funcionales porque priorizamos lo que tiene más riesgo. Los riesgos P1 de la sección 3.1 (acceso entre empresas, permisos del editor e inyección) sí tienen caso propio. En cambio, flujos como el registro o la gestión de usuarios se cubren con la suite end-to-end, que no requiere un caso manual por separado.
 
 ## 5.3 Coherencia y brechas
 
-Al revisar el plan completo vemos que es coherente con los objetivos de la sección 1.3: los permisos del editor se prueban en CP-02, el aislamiento entre empresas en CP-03, la protección de datos en CP-01 y CP-06, el rendimiento en CP-07 y la experiencia de adultos mayores en CP-08. De OWASP Top 10 quedan cubiertas con casos A01, A02, A03 y A07. A06 (componentes vulnerables) se controla con npm audit en el pipeline y A09 (registro y monitoreo) con la revisión de logs y auditoría planificada.
+Al revisar el plan completo vemos que es coherente con los objetivos de la sección 1.3: los permisos del editor se prueban en CP-02, el aislamiento entre empresas en CP-03, la protección de datos en CP-01 y CP-06, el rendimiento en CP-07, la experiencia de adultos mayores en CP-08 y el funcionamiento en distintos navegadores en CP-09. De OWASP Top 10 quedan cubiertas con casos A01, A02, A03 y A07. A06 (componentes vulnerables) se controla con npm audit en el pipeline y A09 (registro y monitoreo) con la revisión de logs y auditoría planificada.
 
 Las brechas que quedan para la siguiente iteración son:
 
-- redactar los casos de sesión (RF-1.2), enlaces compartidos (RF-5.5), cifrado en reposo (NFR-SEG-3), respaldo (NFR-SEG-7) y compatibilidad (NFR-COMPAT);
+- redactar los casos de sesión (RF-1.2), enlaces compartidos (RF-5.5), cifrado en reposo (NFR-SEG-3) y respaldo (NFR-SEG-7);
 - validar con CreaLab los supuestos de la sección 2.4 (tamaño de archivo, umbral de 30 días y SUS ≥ 70);
 - proponer requerimientos de consentimiento, derechos de los titulares y aviso de brechas, que la Ley 21.719 exige y la ERS no incluye.

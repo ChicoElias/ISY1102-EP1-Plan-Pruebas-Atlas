@@ -1,6 +1,6 @@
 # 4. Diseño de casos de prueba
 
-Diseñamos ocho casos que cubren los distintos tipos de requerimientos de la ERS: tres funcionales, tres de seguridad y dos no funcionales. Se priorizaron los riesgos P1 de la sección 3.1 y los requerimientos con umbrales medibles. Los demás requerimientos quedan cubiertos por las suites y actividades indicadas en la matriz del capítulo 5.
+Diseñamos nueve casos que cubren los distintos tipos de requerimientos de la ERS: tres funcionales, tres de seguridad y tres no funcionales. Se priorizaron los riesgos P1 de la sección 3.1 y los requerimientos con umbrales medibles. Los demás requerimientos quedan cubiertos por las suites y actividades indicadas en la matriz del capítulo 5.
 
 ### CP-01 – Inicio de sesión con credenciales válidas
 
@@ -177,3 +177,25 @@ Diseñamos ocho casos que cubren los distintos tipos de requerimientos de la ERS
 | Guion de 3 tareas y cuestionario SUS de 10 preguntas. |
 | **TIPO DE PRUEBA** |
 | No funcional (usabilidad y accesibilidad) |
+
+### CP-09 – Compatibilidad entre navegadores y dispositivos
+
+| ID | NOMBRE | REQUERIMIENTO |
+|---|---|---|
+| CP-09 | Compatibilidad entre navegadores y dispositivos | NFR-COMPAT-1, NFR-COMPAT-2 |
+
+| DESCRIPCIÓN |
+|---|
+| Verificar que los flujos principales funcionen igual en los navegadores que exige la ERS y que la interfaz se adapte a escritorio, tablet y celular. |
+| **PRECONDICIONES** |
+| Ambiente QA desplegado con datos ficticios. Suite de Playwright configurada para Chromium, Firefox y WebKit, y cuenta de BrowserStack disponible. |
+| **PASOS** |
+| 1. Ejecutar con Playwright el flujo de login, creación de cliente, creación de contrato y consulta de auditoría en Chromium, Firefox y WebKit.<br>2. Repetir el flujo en BrowserStack sobre Chrome y Edge en Windows, Safari en macOS y Safari en iOS.<br>3. Revisar en cada navegador que tablas, formularios y botones no se corten ni se superpongan.<br>4. Repetir el recorrido en pantallas de 1920, 768 y 375 px de ancho.<br>5. En celular, comprobar el tamaño de los controles y que no haga falta desplazarse en horizontal. |
+| **RESULTADO ESPERADO** |
+| Los flujos se completan en todos los navegadores y tamaños de pantalla, y la interfaz se reordena sin elementos cortados o inaccesibles. |
+| **CRITERIO DE ACEPTACIÓN** |
+| Sin defectos bloqueantes ni críticos en la matriz de navegadores. Las diferencias entre navegadores son solo visuales (bordes o sombras). En móvil los controles miden al menos 44 × 44 px y no se necesita desplazamiento horizontal. |
+| **DATOS DE PRUEBA** |
+| Mismos datos de CP-04 y CP-05. Matriz: Chrome, Firefox, Safari y Edge en sus dos últimas versiones; iPhone, Galaxy, iPad y notebook 1080p. |
+| **TIPO DE PRUEBA** |
+| No funcional (compatibilidad) |
