@@ -39,5 +39,5 @@ NFR-USAB-3;Ayuda y errores amigables;CP-04, CP-08;Usabilidad;WCAG 2.1 AA
 NFR-USAB-4;Flujo cliente → contratos;CP-08;Usabilidad;ISO/IEC 25010
 NFR-DIS-1;Disponibilidad de 99,5 %;CP-07 y monitoreo;Confiabilidad;ISO/IEC 25010
 NFR-DIS-2;Mantenimiento y migración segura;Prueba de migración;Mantenibilidad;ISO/IEC 27001
-NFR-COMPAT-1;Navegadores modernos;Suite Playwright multi-navegador;Compatibilidad;ISO/IEC 25010
-NFR-COMPAT-2;Responsivo en móvil y tablet;Suite Playwright y BrowserStack;Compatibilidad;ISO/IEC 25010
+NFR-COMPAT-1;Navegadores modernos;CP-09;Compatibilidad;ISO/IEC 25010
+NFR-COMPAT-2;Responsivo en móvil y tablet;CP-09;Compatibilidad;ISO/IEC 25010
