@@ -12,11 +12,16 @@ También aplicamos *shift-left*: el análisis de código y de dependencias corre
 
 Siguiendo ISO/IEC/IEEE 29119, el proceso tiene cinco etapas:
 
+
 1. **Planificación:** análisis de la ERS, riesgos, alcance y este plan.
 2. **Diseño:** casos de prueba, datos de prueba y matriz de trazabilidad.
 3. **Preparación:** ambiente QA, datos ficticios, herramientas y pipeline.
 4. **Ejecución:** unitarias → integración y API → sistema → no funcionales → seguridad → aceptación del cliente.
 5. **Cierre:** revisión de criterios de salida e informe de resultados.
+
+![Figura 1](img/figura-1-etapas-de-pruebas.png)
+
+Figura 1. Etapas del proceso de pruebas y su realimentación.
 
 ### Priorización
 
@@ -30,6 +35,8 @@ La prioridad sale de cruzar probabilidad e impacto, dando más peso cuando hay d
 | P2 | Estado de contrato mal calculado o CRUD con validaciones fallidas | RF-4, RF-5.4 |
 | P2 | No se cumplen los tiempos de respuesta | NFR-PERF |
 | P3 | Barreras de usabilidad o diferencias entre navegadores | NFR-USAB, NFR-COMPAT |
+
+Tabla 4. Priorización de riesgos y requerimientos asociados.
 
 ### Criterios de entrada y salida
 
@@ -67,6 +74,10 @@ Buscan demostrar los umbrales de NFR-PERF: menos de 300 ms en operaciones CRUD s
 
 Se hacen sesiones con 5 adultos mayores, como pide la ERS, midiendo tareas completadas, errores y el puntaje SUS. En paralelo se revisa la conformidad con WCAG 2.1 AA: contraste, etiquetas ARIA, navegación con teclado y tamaño de los controles táctiles.
 
+### Pruebas de aceptación
+
+Cierran el ciclo. El Product Owner de CreaLab recorre los flujos principales (registro, alta de cliente, contrato con documento y consulta de auditoría) con datos ficticios y confirma que el sistema responde a lo que la empresa necesita. Se ejecutan en preproducción, después de las pruebas de seguridad.
+
 ### Pruebas de compatibilidad
 
 Se ejecutan los flujos principales en las dos últimas versiones de Chrome, Firefox, Safari y Edge, y en celular, tablet y escritorio (NFR-COMPAT-1 y 2).
@@ -92,6 +103,8 @@ Además del criterio propio de cada caso, un caso solo se aprueba si cumple esta
 
 Los defectos se clasifican en crítico, alto, medio o bajo. Los críticos y altos bloquean la liberación; los medios y bajos se aceptan con fecha de corrección.
 
+Cada defecto se registra en Jira con los pasos para reproducirlo, la evidencia y el requerimiento afectado. El ciclo es: nuevo, asignado, en corrección, listo para verificar y cerrado; si la verificación falla, vuelve a abrirse. Los defectos de seguridad se manejan con visibilidad restringida al equipo, para no exponer detalles del sistema mientras no estén corregidos.
+
 ## 3.4 Herramientas utilizadas
 
 | Herramienta | Para qué la usamos |
@@ -108,6 +121,8 @@ Los defectos se clasifican en crítico, alto, medio o bajo. Los críticos y alto
 | SonarQube / Semgrep y npm audit | Análisis estático del código y vulnerabilidades en dependencias |
 | GitHub Actions | Ejecución automática de las pruebas en cada push |
 | Jira | Registro y seguimiento de defectos |
+
+Tabla 5. Herramientas seleccionadas y su uso en el proyecto.
 
 ## 3.5 Recursos y cronograma
 
@@ -131,3 +146,5 @@ Trabajamos con cuatro ambientes: desarrollo para pruebas unitarias, integración
 | 4 | Rendimiento, compatibilidad y sesiones de usabilidad | Informe de carga y SUS |
 | 5 | Pruebas de seguridad y pentest | Sin hallazgos críticos |
 | 6 | Reprueba, regresión, aceptación del cliente e informe | Aceptación formal |
+
+Tabla 6. Cronograma referencial de seis semanas.

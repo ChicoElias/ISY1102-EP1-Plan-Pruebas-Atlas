@@ -16,6 +16,8 @@ Para decidir qué probar primero clasificamos Atlas según los tres ejes vistos 
 | Seguridad | Sistema multiempresa con datos personales y bancarios | Datos bancarios de clientes (2.2), control de acceso por rol (NFR-SEG-4) y cifrado en reposo (NFR-SEG-3) |
 | Cumplimiento | Trata datos personales de terceros bajo ley chilena | NFR-SEG-8, auditoría (RF-6) y acceso restringido por empresa (RB-2) |
 
+Tabla 1. Clasificación de Atlas según calidad, seguridad y cumplimiento.
+
 En la práctica esto significa que no basta con que los formularios funcionen. Un error que deje a una empresa ver los clientes de otra es, al mismo tiempo, una falla funcional, un problema de seguridad y un incumplimiento de la normativa de datos personales.
 
 ## 1.3 Propósito del plan

@@ -49,6 +49,8 @@ La matriz relaciona cada requerimiento de la ERS con el caso de prueba que lo ve
 | NFR-COMPAT-1 | Navegadores modernos | CP-09 | Compatibilidad | ISO/IEC 25010 |
 | NFR-COMPAT-2 | Responsivo en móvil y tablet | CP-09 | Compatibilidad | ISO/IEC 25010 |
 
+Tabla 7. Matriz de trazabilidad entre requerimientos, casos y normas.
+
 ## 5.2 Cobertura
 
 La ERS tiene 42 requerimientos entre funcionales, reglas de negocio y no funcionales. Todos quedan trazados a una prueba. De ellos, 27 (64 %) tienen un caso detallado en este informe y los 15 restantes están cubiertos por una suite o actividad planificada.
@@ -63,6 +65,8 @@ La ERS tiene 42 requerimientos entre funcionales, reglas de negocio y no funcion
 | Disponibilidad (NFR-DIS) | 2 | 1 | 1 |
 | Compatibilidad (NFR-COMPAT) | 2 | 2 | 0 |
 | **Total** | **42** | **27** | **15** |
+
+Tabla 8. Cobertura de requerimientos por grupo.
 
 El porcentaje de casos detallados es menor en los requerimientos funcionales porque priorizamos lo que tiene más riesgo. Los riesgos P1 de la sección 3.1 (acceso entre empresas, permisos del editor e inyección) sí tienen caso propio. En cambio, flujos como el registro o la gestión de usuarios se cubren con la suite end-to-end, que no requiere un caso manual por separado.
 

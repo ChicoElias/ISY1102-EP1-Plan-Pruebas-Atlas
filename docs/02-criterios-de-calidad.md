@@ -15,6 +15,10 @@ Usamos como referencia el modelo ISO/IEC 25010. No todas sus características pe
 | Compatibilidad | Funciona en los navegadores indicados | NFR-COMPAT-1 y 2 | Sin defectos bloqueantes en la matriz de navegadores |
 | Mantenibilidad | Cambios y migraciones sin romper lo existente | NFR-DIS-2 | Regresión automatizada en cada integración |
 
+Tabla 2. Criterios de calidad del producto según ISO/IEC 25010.
+
+La seguridad, que también forma parte del modelo, se desarrolla aparte en 2.2 por su peso en este proyecto. La portabilidad queda con menor detalle porque la ERS no define métricas más allá del diseño responsivo.
+
 ## 2.2 Seguridad
 
 Aquí tomamos como base OWASP Top 10 (2021) y el nivel 2 de OWASP ASVS, que es el recomendado para aplicaciones con datos personales. Los criterios que aplican a Atlas son:
@@ -36,6 +40,8 @@ Aquí tomamos como base OWASP Top 10 (2021) y el nivel 2 de OWASP ASVS, que es e
 | Ley 17.336, propiedad intelectual | El proyecto usa librerías de terceros, por lo que hay que revisar sus licencias |
 | ISO/IEC 25010, ISO/IEC 27001:2022 e ISO/IEC/IEEE 29119 | Modelo de calidad, controles de seguridad y estructura del proceso de pruebas |
 | WCAG 2.1 nivel AA | Accesibilidad web, relevante por el público adulto mayor |
+
+Tabla 3. Normas y estándares aplicables al proyecto.
 
 ## 2.4 Observaciones a la ERS
 
