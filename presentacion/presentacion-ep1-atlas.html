@@ -1,20 +1,24 @@
 <title>Plan de Pruebas Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
   :root{
-    --ink:#101B2D;
-    --ink-soft:#43526B;
-    --ground:#F6F7F9;
+    --ink:#0F1A2B;
+    --ink-soft:#44536C;
+    --ink-faint:#7A8699;
+    --ground:#F5F7F9;
     --surface:#FFFFFF;
-    --line:#DFE3EA;
-    --gold:#D6900C;
+    --line:#DCE1E9;
+    --line-soft:#E9EDF2;
+    --gold:#C8860B;
+    --gold-soft:#F5E7C9;
     --navy:#1B2A4A;
-    --alert:#B4432A;
+    --alert:#A83D25;
     --display:'Archivo','Helvetica Neue',Arial,sans-serif;
     --body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
     --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+    --bar-h:52px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -24,130 +28,164 @@
     -webkit-font-smoothing:antialiased;
   }
   .deck{height:100%;position:relative;overflow:hidden}
+
   .slide{
     position:absolute;inset:0;display:none;
-    padding:clamp(28px,5vw,80px) clamp(16px,5vw,88px) clamp(70px,8vh,96px);
+    padding:clamp(26px,4.5vw,72px) clamp(16px,5vw,86px) calc(var(--bar-h) + 26px);
     overflow-y:auto;
   }
-  .slide.is-active{display:flex;flex-direction:column;justify-content:center;animation:rise .45s ease both}
-  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .slide.is-active{display:flex;flex-direction:column;justify-content:center;animation:rise .4s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   @media (prefers-reduced-motion:reduce){.slide.is-active{animation:none}}
-  .wrap{width:100%;max-width:1080px;margin:0 auto}
+  .wrap{width:100%;max-width:1060px;margin:0 auto}
 
   .eyebrow{
-    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--gold);margin:0 0 14px
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 16px;display:flex;align-items:center;gap:10px
   }
-  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,7vw,5.2rem);line-height:.98;letter-spacing:-.02em;margin:0;text-wrap:balance}
-  h2{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4.6vw,3.3rem);line-height:1.04;letter-spacing:-.018em;margin:0 0 18px;text-wrap:balance}
-  .lead{font-size:clamp(1rem,1.7vw,1.35rem);color:var(--ink-soft);max-width:60ch;margin:0}
+  .eyebrow::after{content:"";flex:1;height:1px;background:var(--line);max-width:120px}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.7rem,7.4vw,5.4rem);line-height:.96;letter-spacing:-.025em;margin:0;text-wrap:balance}
+  h2{font-family:var(--display);font-weight:700;font-size:clamp(1.85rem,4.4vw,3.15rem);line-height:1.06;letter-spacing:-.018em;margin:0 0 18px;text-wrap:balance;max-width:24ch}
+  h2.wide{max-width:32ch}
+  .lead{font-size:clamp(1rem,1.6vw,1.28rem);color:var(--ink-soft);max-width:62ch;margin:0}
   p{margin:0 0 12px}
   strong{font-weight:600}
-  .mono{font-family:var(--mono)}
 
   /* portada */
-  .cover-meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:28px 56px;padding-top:36px;border-top:2px solid var(--gold)}
-  .cover-meta div{min-width:180px}
-  .cover-meta span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
-  .cover-meta b{font-weight:600;font-size:1.02rem;display:block}
-  .cover-sub{font-size:clamp(1.05rem,2.4vw,1.7rem);color:var(--ink-soft);margin:14px 0 0;font-weight:500}
+  .cover{display:flex;flex-direction:column;height:100%;justify-content:center}
+  .cover-sub{font-size:clamp(1.05rem,2.3vw,1.6rem);color:var(--ink-soft);margin:16px 0 0;font-weight:500}
+  .cover-rule{height:3px;background:var(--gold);width:96px;margin:34px 0 0;border-radius:2px}
+  .cover-meta{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:26px 48px}
+  .cover-meta span{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:7px}
+  .cover-meta b{font-weight:600;font-size:1rem;display:block;line-height:1.45}
 
-  /* grilla de tarjetas */
+  /* tarjetas */
   .grid{display:grid;gap:14px;margin-top:26px}
-  .g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-  .g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
-  .card h3{font-family:var(--display);font-size:1.05rem;font-weight:600;margin:0 0 6px}
-  .card p{font-size:.95rem;color:var(--ink-soft);margin:0}
-  .tag{font-family:var(--mono);font-size:.72rem;color:var(--navy);background:#EDF0F6;border-radius:4px;padding:2px 7px;display:inline-block;margin-top:10px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(272px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(218px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column}
+  .card h3{font-family:var(--display);font-size:1.04rem;font-weight:600;margin:0 0 7px;letter-spacing:-.01em}
+  .card p{font-size:.94rem;color:var(--ink-soft);margin:0}
+  .tag{font-family:var(--mono);font-size:.71rem;color:var(--navy);background:var(--line-soft);border-radius:5px;padding:3px 8px;display:inline-block;margin-top:12px;align-self:flex-start}
 
   /* métricas */
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px;margin-top:30px}
-  .stat b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1;letter-spacing:-.02em}
-  .stat span{display:block;font-size:.92rem;color:var(--ink-soft);margin-top:8px;max-width:22ch}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:22px;margin-top:30px}
+  .stat b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,4.8vw,3.3rem);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .stat span{display:block;font-size:.9rem;color:var(--ink-soft);margin-top:9px;max-width:23ch}
   .stat.gold b{color:var(--gold)}
 
-  /* lista numerada de supuestos */
-  ol.plain{margin:24px 0 0;padding:0;list-style:none;counter-reset:n;display:grid;gap:12px}
-  ol.plain li{counter-increment:n;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;font-size:1rem}
-  ol.plain li::before{content:counter(n);font-family:var(--mono);font-size:.8rem;color:var(--gold);border:1px solid var(--line);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+  /* supuestos */
+  ol.plain{margin:26px 0 0;padding:0;list-style:none;counter-reset:n;display:grid;gap:13px}
+  ol.plain li{counter-increment:n;display:grid;grid-template-columns:auto 1fr;gap:15px;align-items:start;font-size:1rem;max-width:74ch}
+  ol.plain li::before{content:counter(n);font-family:var(--mono);font-size:.78rem;color:var(--gold);background:var(--gold-soft);border-radius:50%;width:27px;height:27px;display:grid;place-items:center;margin-top:1px}
 
-  /* flujo de etapas */
-  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:28px}
-  .step{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:8px;padding:14px 16px}
-  .step em{font-family:var(--mono);font-style:normal;font-size:.72rem;color:var(--gold);display:block;margin-bottom:6px}
-  .step b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px}
-  .step span{font-size:.86rem;color:var(--ink-soft)}
-  .flow-note{font-size:.86rem;color:var(--ink-soft);margin-top:12px;font-style:italic}
+  /* etapas */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px;margin-top:28px}
+  .step{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:10px;padding:14px 16px}
+  .step em{font-family:var(--mono);font-style:normal;font-size:.7rem;letter-spacing:.1em;color:var(--gold);display:block;margin-bottom:7px}
+  .step b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:5px}
+  .step span{font-size:.85rem;color:var(--ink-soft)}
+  .flow-note{font-size:.86rem;color:var(--ink-faint);margin-top:14px}
 
   /* tabla */
-  table{width:100%;border-collapse:collapse;margin-top:24px;font-size:.93rem}
-  caption{caption-side:bottom;text-align:left;font-size:.8rem;color:var(--ink-soft);padding-top:10px}
-  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
-  th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .scroll{overflow-x:auto;margin-top:22px}
+  table{width:100%;border-collapse:collapse;font-size:.93rem;min-width:420px}
+  caption{caption-side:bottom;text-align:left;font-size:.79rem;color:var(--ink-faint);padding-top:10px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line-soft)}
+  th{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);border-bottom-color:var(--line)}
   td.num{font-variant-numeric:tabular-nums;text-align:right}
-  tr.total td{font-weight:600;border-bottom:none}
-  .scroll{overflow-x:auto}
+  tr.total td{font-weight:600;border-bottom:none;border-top:1px solid var(--line)}
 
   /* prioridades */
-  .prio{display:grid;gap:10px;margin-top:26px}
-  .prio-row{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;padding:14px 18px}
+  .prio{display:grid;gap:9px;margin-top:26px}
+  .prio-row{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:10px;padding:13px 18px}
   .prio-row.p1{border-left-color:var(--alert)}
   .prio-row.p2{border-left-color:var(--gold)}
-  .prio-row b{font-family:var(--mono);font-size:.82rem}
-  .prio-row span{font-size:.97rem}
-  .prio-row i{font-family:var(--mono);font-style:normal;font-size:.76rem;color:var(--ink-soft);text-align:right}
+  .prio-row b{font-family:var(--mono);font-size:.8rem}
+  .prio-row span{font-size:.96rem}
+  .prio-row i{font-family:var(--mono);font-style:normal;font-size:.75rem;color:var(--ink-faint);text-align:right}
+  @media (max-width:640px){.prio-row{grid-template-columns:auto 1fr;gap:10px}.prio-row i{grid-column:2;text-align:left}}
 
-  /* caso destacado */
-  .case{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:24px}
+  /* caso */
+  .case{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:24px}
   .case header{background:var(--navy);color:#fff;padding:12px 18px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
-  .case header b{font-family:var(--mono);font-size:.85rem}
+  .case header b{font-family:var(--mono);font-size:.84rem}
   .case header span{font-size:.95rem}
-  .case dl{margin:0;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:.95rem}
-  .case dt{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);padding-top:3px}
+  .case header .req{margin-left:auto;font-size:.76rem;color:#C9D3E6}
+  .case dl{margin:0;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:11px 20px;font-size:.95rem}
+  .case dt{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);padding-top:3px}
   .case dd{margin:0}
+  @media (max-width:560px){.case dl{grid-template-columns:1fr;gap:4px 0}.case dd{margin-bottom:10px}}
 
-  .closing{display:grid;gap:14px;margin-top:26px;max-width:70ch}
-  .closing p{font-size:1.06rem;margin:0;padding-left:16px;border-left:2px solid var(--gold)}
-  .repo{margin-top:28px;font-family:var(--mono);font-size:.85rem;color:var(--ink-soft);word-break:break-all}
+  .closing{display:grid;gap:15px;margin-top:26px;max-width:72ch}
+  .closing p{font-size:1.05rem;margin:0;padding-left:18px;border-left:2px solid var(--gold)}
+  .repo{margin-top:30px;font-family:var(--mono);font-size:.84rem;color:var(--ink-faint);word-break:break-all}
 
-  /* barra inferior */
-  .bar{position:fixed;left:0;right:0;bottom:0;padding:10px clamp(16px,5vw,88px);padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
-    display:flex;align-items:center;gap:16px;background:rgba(246,247,249,.94);border-top:1px solid var(--line);backdrop-filter:blur(6px)}
-  .bar .who{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
-  .bar .who b{color:var(--navy);font-weight:600}
-  .track{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
-  .track i{display:block;height:100%;background:var(--gold);width:8%;transition:width .35s ease}
-  .bar nav{display:flex;gap:6px}
-  .bar button{font-family:var(--mono);font-size:.8rem;color:var(--navy);background:var(--surface);border:1px solid var(--line);border-radius:6px;width:34px;height:30px;cursor:pointer}
-  .bar button:hover{border-color:var(--navy)}
-  .bar button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-  .count{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
-  @media (max-width:560px){.bar .who{display:none}}
+  /* barra */
+  .bar{position:fixed;left:0;right:0;bottom:0;height:var(--bar-h);
+    padding:0 clamp(16px,5vw,86px);padding-bottom:env(safe-area-inset-bottom,0px);
+    display:flex;align-items:center;gap:16px;background:rgba(245,247,249,.95);border-top:1px solid var(--line);backdrop-filter:blur(8px);z-index:20}
+  .who{font-family:var(--mono);font-size:.73rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);white-space:nowrap}
+  .who b{color:var(--navy);font-weight:600}
+  .track{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden;min-width:60px}
+  .track i{display:block;height:100%;background:var(--gold);width:8.33%;transition:width .35s ease}
+  .tools{display:flex;gap:6px;align-items:center}
+  button{font-family:var(--mono);font-size:.78rem;color:var(--navy);background:var(--surface);border:1px solid var(--line);border-radius:7px;height:31px;min-width:31px;padding:0 9px;cursor:pointer}
+  button:hover{border-color:var(--navy)}
+  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .count{font-family:var(--mono);font-size:.77rem;color:var(--ink-faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .clock{font-family:var(--mono);font-size:.77rem;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+  @media (max-width:720px){.who{display:none}}
+  @media (max-width:520px){.clock{display:none}}
+
+  /* notas del expositor */
+  .notes{position:fixed;left:clamp(16px,5vw,86px);right:clamp(16px,5vw,86px);bottom:calc(var(--bar-h) + 14px);
+    background:var(--navy);color:#EEF2F8;border-radius:12px;padding:16px 20px;z-index:19;box-shadow:0 12px 34px rgba(15,26,43,.22)}
+  .notes h4{font-family:var(--mono);font-size:.69rem;letter-spacing:.14em;text-transform:uppercase;color:#E8C57A;margin:0 0 9px}
+  .notes ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:.92rem;line-height:1.45}
+  .notes .next{margin:12px 0 0;font-size:.79rem;color:#A9B7CE;font-family:var(--mono)}
+
+  /* índice */
+  .index{position:fixed;inset:0;background:rgba(245,247,249,.97);z-index:30;padding:clamp(24px,5vw,60px);overflow-y:auto}
+  .index h3{font-family:var(--display);font-size:1.5rem;margin:0 0 20px}
+  .index-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .index-grid button{display:block;width:100%;min-height:96px;text-align:left;padding:14px 16px;font-family:var(--body);font-size:.92rem;color:var(--ink);border-radius:10px;line-height:1.35}
+  .index-grid button b{display:block;font-family:var(--mono);font-size:.71rem;color:var(--gold);margin-bottom:7px}
+  .index-grid button small{display:block;margin-top:9px;font-family:var(--mono);font-size:.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.08em}
+  .index-grid button.current{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+
+  @media print{
+    .bar,.notes,.index{display:none!important}
+    .deck{height:auto;overflow:visible}
+    .slide{display:flex!important;position:relative;inset:auto;min-height:96vh;padding:24mm 18mm;break-after:page;animation:none}
+    body{background:#fff}
+  }
 </style>
 
-<div class="deck" id="deck">
+<div class="deck" id="deck" aria-live="polite">
 
-  <!-- 1 -->
-  <section class="slide" data-who="Elías Delgado Manríquez y Rolando Aldana">
-    <div class="wrap" style="display:flex;flex-direction:column;height:100%">
+  <section class="slide" data-who="Elías Delgado y Rolando Aldana" data-title="Portada"
+    data-notes="Presentarse los dos y nombrar la evaluación|Decir que es la Forma A del caso semestral|Nombrar Atlas y CreaLab SpA|20 segundos, sin entrar en detalle técnico">
+    <div class="wrap cover">
       <p class="eyebrow">Evaluación Parcial 1 · Caso semestral, Forma A</p>
       <h1>Plan de<br>pruebas</h1>
       <p class="cover-sub">Sistema de Gestión Atlas · CreaLab SpA</p>
+      <div class="cover-rule"></div>
       <div class="cover-meta">
         <div><span>Asignatura</span><b>ISY1102 · Seguridad y Calidad en el Desarrollo de Software</b></div>
-        <div><span>Sección</span><b>004V</b></div>
+        <div><span>Sección</span><b>004V · Escuela de Informática y Telecomunicaciones</b></div>
         <div><span>Integrantes</span><b>Elías Delgado Manríquez<br>Rolando Aldana</b></div>
         <div><span>Docente</span><b>Johnnathan René Cubillos Flores</b></div>
       </div>
     </div>
   </section>
 
-  <!-- 2 -->
-  <section class="slide" data-who="Elías Delgado">
+  <section class="slide" data-who="Elías Delgado" data-title="El sistema bajo prueba"
+    data-notes="Atlas: varias pymes administran clientes, contratos y documentos|Stack: SPA React, API REST Express, PostgreSQL, JWT, bcrypt, TLS|Tres condicionantes: dos roles, datos bancarios, adultos mayores|Nombrar RB-2, RB-4 y NFR-USAB">
     <div class="wrap">
       <p class="eyebrow">El sistema bajo prueba</p>
-      <h2>Atlas administra clientes, contratos y documentos de varias empresas en una sola plataforma.</h2>
+      <h2 class="wide">Atlas administra clientes, contratos y documentos de varias empresas en una sola plataforma.</h2>
       <p class="lead">Una aplicación de página única en React consume una API REST en Express sobre PostgreSQL. La sesión usa JWT de corta vigencia, las contraseñas se guardan con bcrypt y todo el tráfico viaja sobre TLS.</p>
       <div class="grid g3">
         <div class="card">
@@ -169,8 +207,8 @@
     </div>
   </section>
 
-  <!-- 3 -->
-  <section class="slide" data-who="Elías Delgado">
+  <section class="slide" data-who="Elías Delgado" data-title="Clasificación del producto"
+    data-notes="Los tres ejes del ramo: calidad, seguridad, cumplimiento|La consecuencia es lo importante: un defecto, tres problemas|Por eso el control de acceso es prioridad uno|No leer la tabla, explicar el razonamiento">
     <div class="wrap">
       <p class="eyebrow">Clasificación del producto</p>
       <h2>Un error de autorización no es solo una falla funcional.</h2>
@@ -183,11 +221,11 @@
     </div>
   </section>
 
-  <!-- 4 -->
-  <section class="slide" data-who="Elías Delgado">
+  <section class="slide" data-who="Elías Delgado" data-title="Criterios de calidad"
+    data-notes="ISO/IEC 25010, solo las características con umbral verificable|300 ms es percentil 95, no promedio|SUS 70 lo propusimos nosotros: decirlo|Vuelve en la lámina 6 como supuesto">
     <div class="wrap">
       <p class="eyebrow">Criterios de calidad · ISO/IEC 25010</p>
-      <h2>Cada característica del modelo se probó contra un número, no contra una intención.</h2>
+      <h2 class="wide">Cada característica del modelo se probó contra un número, no contra una intención.</h2>
       <div class="stats">
         <div class="stat gold"><b>300 ms</b><span>Percentil 95 en operaciones CRUD simples</span></div>
         <div class="stat gold"><b>2 s</b><span>Carga de la página principal en red móvil</span></div>
@@ -195,20 +233,20 @@
         <div class="stat gold"><b>99,5 %</b><span>Disponibilidad mensual objetivo</span></div>
         <div class="stat gold"><b>SUS 70</b><span>Puntaje mínimo de usabilidad que propusimos</span></div>
       </div>
-      <p class="lead" style="margin-top:28px">Adecuación funcional, eficiencia, usabilidad, confiabilidad, compatibilidad y mantenibilidad quedan con métrica y requerimiento asociado. La seguridad se trata aparte por su peso en este proyecto.</p>
+      <p class="lead" style="margin-top:30px">Adecuación funcional, eficiencia, usabilidad, confiabilidad, compatibilidad y mantenibilidad quedan con métrica y requerimiento asociado. La seguridad se trata aparte por su peso en este proyecto.</p>
     </div>
   </section>
 
-  <!-- 5 -->
-  <section class="slide" data-who="Elías Delgado">
+  <section class="slide" data-who="Elías Delgado" data-title="Seguridad y marco normativo"
+    data-notes="La ley define el piso, OWASP define cómo comprobarlo|21.719: responsabilidad proactiva, hay que demostrarlo|La evidencia de CP-03 es parte del cumplimiento|WCAG aplica por el perfil de usuario">
     <div class="wrap">
       <p class="eyebrow">Seguridad y marco normativo</p>
-      <h2>La ley chilena define el piso; OWASP define cómo comprobarlo.</h2>
+      <h2 class="wide">La ley chilena define el piso; OWASP define cómo comprobarlo.</h2>
       <div class="grid g2">
         <div class="card">
           <h3>Ley 19.628 y Ley 21.719</h3>
           <p>Protección de datos personales. La 21.719 exige responsabilidad proactiva: hay que poder demostrar las medidas adoptadas, no solo declararlas.</p>
-          <span class="tag">Evidencia: CP-03 y registros de auditoría</span>
+          <span class="tag">Evidencia: CP-03 y auditoría</span>
         </div>
         <div class="card">
           <h3>Ley 21.663 y Ley 21.459</h3>
@@ -229,11 +267,11 @@
     </div>
   </section>
 
-  <!-- 6 -->
-  <section class="slide" data-who="Elías Delgado">
+  <section class="slide" data-who="Elías Delgado" data-title="Hallazgo del análisis"
+    data-notes="Aquí se nota que leímos la ERS en serio|Cuatro vacíos que cambian los criterios de aceptación|Quedan declarados como supuestos, no inventados|Cerrar con el relevo: pasar a Rolando la estrategia">
     <div class="wrap">
       <p class="eyebrow">Hallazgo del análisis</p>
-      <h2>La ERS llega con vacíos, y un plan de pruebas los deja por escrito.</h2>
+      <h2 class="wide">La ERS llega con vacíos, y un plan de pruebas los deja por escrito.</h2>
       <p class="lead">Estos cuatro puntos cambian los criterios de aceptación. Se trabajan como supuestos declarados hasta que CreaLab los confirme.</p>
       <ol class="plain">
         <li><span>Tipografía de 12 px para un público adulto mayor. Proponemos 16 px como mínimo.</span></li>
@@ -244,11 +282,11 @@
     </div>
   </section>
 
-  <!-- 7 -->
-  <section class="slide" data-who="Rolando Aldana">
+  <section class="slide" data-who="Rolando Aldana" data-title="Estrategia"
+    data-notes="Partir agradeciendo el relevo|Mixto y basado en riesgo: qué se automatiza y qué no|Shift-left: análisis desde el primer commit|ISO/IEC/IEEE 29119, cinco etapas, con reprueba y regresión">
     <div class="wrap">
       <p class="eyebrow">Continúa Rolando Aldana · Estrategia</p>
-      <h2>Enfoque mixto, ordenado por riesgo y con la seguridad al inicio.</h2>
+      <h2 class="wide">Enfoque mixto, ordenado por riesgo y con la seguridad al inicio.</h2>
       <p class="lead">Lo repetitivo se automatiza en integración continua; lo que exige criterio humano se ejecuta a mano. El análisis de código y de dependencias corre desde el primer commit.</p>
       <div class="flow">
         <div class="step"><em>Etapa 1</em><b>Planificación</b><span>Análisis de la ERS y riesgos</span></div>
@@ -261,8 +299,8 @@
     </div>
   </section>
 
-  <!-- 8 -->
-  <section class="slide" data-who="Rolando Aldana">
+  <section class="slide" data-who="Rolando Aldana" data-title="Tipos de prueba"
+    data-notes="Siete frentes, cada uno con propósito distinto|Usar integración como ejemplo: la cadena completa del documento|RF-5.2, RF-5.3 y RF-6.1 en una sola prueba|Seguridad es la de mayor prioridad">
     <div class="wrap">
       <p class="eyebrow">Tipos de prueba</p>
       <h2>Siete frentes, cada uno con un propósito distinto.</h2>
@@ -278,8 +316,8 @@
     </div>
   </section>
 
-  <!-- 9 -->
-  <section class="slide" data-who="Rolando Aldana">
+  <section class="slide" data-who="Rolando Aldana" data-title="Prioridades y salida"
+    data-notes="Probabilidad por impacto, con peso extra si hay datos personales|Los tres P1: cruce entre empresas, editor que escribe, sesión viva|Inyección también es P1|Criterios de salida: P1 al 100 %, sin críticos, pentest limpio, visto bueno del PO">
     <div class="wrap">
       <p class="eyebrow">Priorización y criterios de salida</p>
       <h2>Primero lo que expone datos de terceros.</h2>
@@ -294,13 +332,13 @@
     </div>
   </section>
 
-  <!-- 10 -->
-  <section class="slide" data-who="Rolando Aldana">
+  <section class="slide" data-who="Rolando Aldana" data-title="Diseño de casos"
+    data-notes="Nueve casos: tres funcionales, tres de seguridad, tres no funcionales|Desarrollar CP-03 y explicar qué es IDOR|Insistir en que no se filtre ningún dato, con IDs correlativos y aleatorios|Nombrar los otros ocho en una frase si el tiempo aprieta">
     <div class="wrap">
       <p class="eyebrow">Diseño de casos · 9 casos</p>
       <h2>Tres funcionales, tres de seguridad, tres no funcionales.</h2>
       <div class="case">
-        <header><b>CP-03</b><span>Aislamiento de datos entre empresas</span><b style="margin-left:auto">RB-2 · NFR-SEG-4 · NFR-SEG-8</b></header>
+        <header><b>CP-03</b><span>Aislamiento de datos entre empresas</span><b class="req">RB-2 · NFR-SEG-4 · NFR-SEG-8</b></header>
         <dl>
           <dt>Pasos</dt><dd>Con sesión de administrador de la empresa A, pedir clientes y contratos de la empresa B cambiando el identificador en la petición.</dd>
           <dt>Esperado</dt><dd>Respuesta 403 o 404 sin revelar un solo dato de B, con identificadores correlativos y aleatorios.</dd>
@@ -311,8 +349,8 @@
     </div>
   </section>
 
-  <!-- 11 -->
-  <section class="slide" data-who="Rolando Aldana">
+  <section class="slide" data-who="Rolando Aldana" data-title="Cobertura y trazabilidad"
+    data-notes="42 requerimientos, todos trazados|27 con caso detallado, 64 %; 15 con suite o actividad|Si preguntan por qué no el 100 %: priorizamos riesgo|La matriz completa está en el Anexo A y en CSV">
     <div class="wrap">
       <p class="eyebrow">Cobertura y trazabilidad</p>
       <h2>Los 42 requerimientos de la ERS quedan trazados.</h2>
@@ -337,11 +375,11 @@
     </div>
   </section>
 
-  <!-- 12 -->
-  <section class="slide" data-who="Elías Delgado y Rolando Aldana">
+  <section class="slide" data-who="Elías Delgado y Rolando Aldana" data-title="Cierre"
+    data-notes="Rolando dice la primera idea: el esfuerzo está donde está el riesgo|Elías cierra con trazabilidad y evidencia legal|Nombrar la tarea de la iteración 2|Cerrar con el repositorio y agradecer">
     <div class="wrap">
       <p class="eyebrow">Cierre</p>
-      <h2>Un plan que sirve para encontrar defectos y para demostrar cumplimiento.</h2>
+      <h2 class="wide">Un plan que sirve para encontrar defectos y para demostrar cumplimiento.</h2>
       <div class="closing">
         <p>El mayor esfuerzo está donde el riesgo es mayor: control de acceso y protección de datos, sin descuidar rendimiento ni usabilidad.</p>
         <p>Cada requerimiento queda conectado a una prueba y a una norma, de modo que la evidencia sirve ante la Ley 19.628 y la Ley 21.719.</p>
@@ -352,47 +390,133 @@
   </section>
 </div>
 
+<div class="notes" id="notes" hidden>
+  <h4>Notas del expositor</h4>
+  <ul id="notesList"></ul>
+  <p class="next" id="notesNext"></p>
+</div>
+
+<div class="index" id="index" hidden>
+  <h3>Índice de la presentación</h3>
+  <div class="index-grid" id="indexGrid"></div>
+</div>
+
 <div class="bar">
   <div class="who">Expone <b id="who">Elías Delgado</b></div>
   <div class="track"><i id="prog"></i></div>
-  <nav>
-    <button id="prev" type="button" aria-label="Diapositiva anterior">←</button>
-    <button id="next" type="button" aria-label="Diapositiva siguiente">→</button>
-  </nav>
+  <div class="clock" id="clock">00:00</div>
+  <div class="tools">
+    <button id="btnNotes" type="button" aria-pressed="false" title="Notas del expositor (N)">Notas</button>
+    <button id="btnIndex" type="button" aria-pressed="false" title="Índice (O)">Índice</button>
+    <button id="btnFull" type="button" title="Pantalla completa (F)">⛶</button>
+    <button id="prev" type="button" aria-label="Diapositiva anterior" title="Anterior (←)">←</button>
+    <button id="next" type="button" aria-label="Diapositiva siguiente" title="Siguiente (→)">→</button>
+  </div>
   <div class="count"><span id="cur">1</span> / <span id="tot">12</span></div>
 </div>
 
 <script>
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
-  var cur = 0;
-  var elWho = document.getElementById('who');
-  var elCur = document.getElementById('cur');
-  var elProg = document.getElementById('prog');
+  var cur = 0, started = null, timer = null;
+  var elWho = document.getElementById('who'),
+      elCur = document.getElementById('cur'),
+      elProg = document.getElementById('prog'),
+      elClock = document.getElementById('clock'),
+      notes = document.getElementById('notes'),
+      notesList = document.getElementById('notesList'),
+      notesNext = document.getElementById('notesNext'),
+      index = document.getElementById('index'),
+      indexGrid = document.getElementById('indexGrid'),
+      btnNotes = document.getElementById('btnNotes'),
+      btnIndex = document.getElementById('btnIndex');
+
   document.getElementById('tot').textContent = slides.length;
 
-  function show(i){
+  slides.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.innerHTML = '<b>' + String(i + 1).padStart(2, '0') + '</b>' + s.dataset.title +
+                  '<small>' + s.dataset.who + '</small>';
+    b.addEventListener('click', function () { show(i); toggleIndex(false); });
+    indexGrid.appendChild(b);
+  });
+
+  function paintNotes() {
+    var items = (slides[cur].dataset.notes || '').split('|').filter(Boolean);
+    notesList.innerHTML = '';
+    items.forEach(function (t) {
+      var li = document.createElement('li');
+      li.textContent = t;
+      notesList.appendChild(li);
+    });
+    notesNext.textContent = cur + 1 < slides.length
+      ? 'Sigue: ' + slides[cur + 1].dataset.title + ' · ' + slides[cur + 1].dataset.who
+      : 'Última diapositiva';
+  }
+
+  function show(i) {
     cur = Math.max(0, Math.min(slides.length - 1, i));
-    slides.forEach(function(s, k){ s.classList.toggle('is-active', k === cur); });
+    slides.forEach(function (s, k) { s.classList.toggle('is-active', k === cur); });
     elWho.textContent = slides[cur].dataset.who;
     elCur.textContent = cur + 1;
     elProg.style.width = ((cur + 1) / slides.length * 100) + '%';
+    Array.prototype.forEach.call(indexGrid.children, function (b, k) {
+      b.classList.toggle('current', k === cur);
+    });
+    paintNotes();
+    if (started === null && cur > 0) startClock();
   }
-  document.getElementById('next').addEventListener('click', function(){ show(cur + 1); });
-  document.getElementById('prev').addEventListener('click', function(){ show(cur - 1); });
-  document.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(cur + 1); }
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
-    if (e.key === 'Home') show(0);
-    if (e.key === 'End') show(slides.length - 1);
+
+  function startClock() {
+    started = Date.now();
+    timer = setInterval(function () {
+      var s = Math.floor((Date.now() - started) / 1000);
+      elClock.textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    }, 1000);
+  }
+
+  function toggleNotes(force) {
+    var on = typeof force === 'boolean' ? force : notes.hidden;
+    notes.hidden = !on;
+    btnNotes.setAttribute('aria-pressed', String(on));
+  }
+  function toggleIndex(force) {
+    var on = typeof force === 'boolean' ? force : index.hidden;
+    index.hidden = !on;
+    btnIndex.setAttribute('aria-pressed', String(on));
+  }
+  function toggleFull() {
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
+  }
+
+  document.getElementById('next').addEventListener('click', function () { show(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function () { show(cur - 1); });
+  btnNotes.addEventListener('click', function () { toggleNotes(); });
+  btnIndex.addEventListener('click', function () { toggleIndex(); });
+  document.getElementById('btnFull').addEventListener('click', toggleFull);
+
+  document.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { e.preventDefault(); show(cur + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); show(cur - 1); }
+    else if (k === 'Home') { e.preventDefault(); show(0); }
+    else if (k === 'End') { e.preventDefault(); show(slides.length - 1); }
+    else if (k === 'n' || k === 'N') { toggleNotes(); }
+    else if (k === 'o' || k === 'O') { toggleIndex(); }
+    else if (k === 'f' || k === 'F') { toggleFull(); }
+    else if (k === 'Escape') { toggleIndex(false); toggleNotes(false); }
+    else if (/^[1-9]$/.test(k)) { show(parseInt(k, 10) - 1); }
   });
+
   var x0 = null;
-  document.addEventListener('touchstart', function(e){ x0 = e.changedTouches[0].clientX; }, {passive:true});
-  document.addEventListener('touchend', function(e){
+  document.addEventListener('touchstart', function (e) { x0 = e.changedTouches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
     if (x0 === null) return;
     var dx = e.changedTouches[0].clientX - x0;
     if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
     x0 = null;
-  }, {passive:true});
+  }, { passive: true });
 
   show(0);
 </script>
