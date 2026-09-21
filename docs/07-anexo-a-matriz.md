@@ -1,0 +1,50 @@
+# Anexo A. Matriz de trazabilidad
+
+Relación entre cada requerimiento de la Especificación de Requerimientos de Software (ERS), el caso de prueba que lo verifica y la norma que respalda el control. Los requerimientos sin caso detallado se cubren con la suite o actividad indicada. La misma matriz está disponible en formato CSV en la carpeta `anexos` del repositorio.
+
+| Requerimiento | Descripción | Caso o actividad | Tipo de prueba | Norma o estándar |
+|---|---|---|---|---|
+| RF-1.1 | Autenticación con usuario y contraseña | CP-01 | Funcional | OWASP A07 |
+| RF-1.2 | Cierre de sesión y revocación de tokens | Suite de API (sesión) | Seguridad | OWASP A07 |
+| RF-2.1 | Registro de usuario | Suite end-to-end | Funcional | Ley 21.719 |
+| RF-2.2 | Creación de empresa | Suite end-to-end | Funcional | ISO/IEC 25010 |
+| RF-2.3 | Primer usuario como administrador | Suite end-to-end | Funcional | ISO/IEC 27001 |
+| RF-3.1 | Invitar o crear usuarios con rol | Suite de API | Funcional | ISO/IEC 27001 |
+| RF-3.2 | Editor solo visualiza | CP-02 | Seguridad | OWASP A01 |
+| RF-3.3 | Modificar o eliminar usuarios | Suite de API | Funcional | ISO/IEC 27001 |
+| RF-4.1 | Crear clientes | CP-04 | Funcional | ISO/IEC 25010 |
+| RF-4.2 | Editar, eliminar y listar clientes | CP-04 | Funcional | Ley 19.628 |
+| RF-4.3 | Validación de campos | CP-04, CP-06 | Funcional y seguridad | OWASP A03 |
+| RF-5.1 | Crear contratos por cliente | CP-05 | Funcional | ISO/IEC 25010 |
+| RF-5.2 | Adjuntar documentos | Suite de integración | Integración | OWASP A04 |
+| RF-5.3 | Documentos en storage interno | Suite de integración | Integración | ISO/IEC 27001 |
+| RF-5.4 | Estado del contrato por fechas | CP-05 | Funcional | ISO/IEC 25010 |
+| RF-5.5 | Enlace para compartir documento | Prueba de seguridad planificada | Seguridad | OWASP A01, Ley 19.628 |
+| RF-6.1 | Auditoría de acciones críticas | Suite de integración | Funcional | OWASP A09, Ley 21.719 |
+| RB-1 | Correo principal único | Suite end-to-end | Regla de negocio | Integridad de datos |
+| RB-2 | Acceso solo a usuarios de la empresa | CP-03 | Seguridad | Ley 19.628, OWASP A01 |
+| RB-3 | Contrato asociado a un cliente | CP-05 | Regla de negocio | Integridad de datos |
+| RB-4 | Editor solo lectura | CP-02 | Seguridad | OWASP A01 |
+| RB-5 | Administrador con acceso completo | CP-04 | Funcional | Mínimo privilegio |
+| NFR-SEG-1 | TLS obligatorio | CP-01 | Seguridad | OWASP A02 |
+| NFR-SEG-2 | Contraseñas con bcrypt | CP-01 | Seguridad | OWASP A02 |
+| NFR-SEG-3 | Cifrado de datos sensibles en reposo | Revisión de base de datos en QA | Seguridad | Ley 19.628, ISO/IEC 27001 |
+| NFR-SEG-4 | Control de acceso por rol en backend | CP-02, CP-03 | Seguridad | OWASP A01 |
+| NFR-SEG-5 | Protección contra CSRF, XSS y SQLi | CP-06 | Seguridad | OWASP A03 |
+| NFR-SEG-6 | Gestión segura de logs | Revisión de logs | Seguridad | OWASP A09 |
+| NFR-SEG-7 | Respaldo y recuperación | Prueba de restauración | Confiabilidad | ISO/IEC 27001 |
+| NFR-SEG-8 | Cumplimiento de protección de datos | CP-03 | Cumplimiento | Ley 19.628, Ley 21.719 |
+| NFR-SEG-9 | Sesión con JWT | CP-01 | Seguridad | OWASP A07 |
+| NFR-PERF-1 | CRUD bajo 300 ms | CP-07 | Rendimiento | ISO/IEC 25010 |
+| NFR-PERF-2 | Página principal bajo 2 s en móvil | CP-07 | Rendimiento | ISO/IEC 25010 |
+| NFR-PERF-3 | 200 usuarios concurrentes | CP-07 | Rendimiento | ISO/IEC 25010 |
+| NFR-USAB-1 | Tipografía, contraste y controles grandes | CP-08 | Usabilidad | WCAG 2.1 AA |
+| NFR-USAB-2 | Flujos claros de registro | CP-08 | Usabilidad | ISO/IEC 25010 |
+| NFR-USAB-3 | Ayuda y errores amigables | CP-04, CP-08 | Usabilidad | WCAG 2.1 AA |
+| NFR-USAB-4 | Flujo cliente → contratos | CP-08 | Usabilidad | ISO/IEC 25010 |
+| NFR-DIS-1 | Disponibilidad de 99,5 % | CP-07 y monitoreo | Confiabilidad | ISO/IEC 25010 |
+| NFR-DIS-2 | Mantenimiento y migración segura | Prueba de migración | Mantenibilidad | ISO/IEC 27001 |
+| NFR-COMPAT-1 | Navegadores modernos | CP-09 | Compatibilidad | ISO/IEC 25010 |
+| NFR-COMPAT-2 | Responsivo en móvil y tablet | CP-09 | Compatibilidad | ISO/IEC 25010 |
+
+Tabla A.1. Trazabilidad de los 42 requerimientos de la ERS.

@@ -1,6 +1,6 @@
 # 4. Diseño de casos de prueba
 
-Diseñamos nueve casos que cubren los distintos tipos de requerimientos de la ERS: tres funcionales, tres de seguridad y tres no funcionales. Se priorizaron los riesgos P1 de la sección 3.1 y los requerimientos con umbrales medibles. Los demás requerimientos quedan cubiertos por las suites y actividades indicadas en la matriz del capítulo 5.
+Diseñamos nueve casos que cubren los distintos tipos de requerimientos de la ERS: tres funcionales, tres de seguridad y tres no funcionales. Se priorizaron los riesgos P1 de la sección 3.1 y los requerimientos con umbrales medibles. Los demás requerimientos se cubren con las suites y actividades señaladas en el Anexo A.
 
 ### CP-01 – Inicio de sesión con credenciales válidas
 
