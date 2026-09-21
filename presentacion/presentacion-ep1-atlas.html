@@ -376,7 +376,6 @@
     elWho.textContent = slides[cur].dataset.who;
     elCur.textContent = cur + 1;
     elProg.style.width = ((cur + 1) / slides.length * 100) + '%';
-    try { localStorage.setItem('atlas-deck-slide', String(cur)); } catch (e) {}
   }
   document.getElementById('next').addEventListener('click', function(){ show(cur + 1); });
   document.getElementById('prev').addEventListener('click', function(){ show(cur - 1); });
@@ -395,7 +394,5 @@
     x0 = null;
   }, {passive:true});
 
-  var start = 0;
-  try { var saved = parseInt(localStorage.getItem('atlas-deck-slide'), 10); if (!isNaN(saved)) start = saved; } catch (e) {}
-  show(start);
+  show(0);
 </script>
