@@ -41,3 +41,4 @@ Informe: [PDF](entregables/EP1_ISY1102_Informe_Plan_de_Pruebas_Atlas.pdf) · [Wo
   6. [Conclusión y referencias](docs/06-conclusion-y-referencias.md)
   7. [Anexo A: matriz de trazabilidad](docs/07-anexo-a-matriz.md)
 - `anexos/` matriz de trazabilidad en CSV.
+- `presentacion/` presentación de 12 diapositivas en HTML, se abre en el navegador.
