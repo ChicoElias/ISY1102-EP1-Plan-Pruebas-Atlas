@@ -37,6 +37,7 @@ Informe: [PDF](entregables/EP1_ISY1102_Informe_Plan_de_Pruebas_Atlas.pdf) · [Wo
   2. [Criterios de calidad](docs/02-criterios-de-calidad.md)
   3. [Plan de pruebas](docs/03-plan-de-pruebas.md)
   4. [Casos de prueba](docs/04-casos-de-prueba.md)
-  5. [Trazabilidad y cobertura](docs/05-trazabilidad-y-cobertura.md)
+  5. [Cobertura y coherencia](docs/05-trazabilidad-y-cobertura.md)
   6. [Conclusión y referencias](docs/06-conclusion-y-referencias.md)
+  7. [Anexo A: matriz de trazabilidad](docs/07-anexo-a-matriz.md)
 - `anexos/` matriz de trazabilidad en CSV.
