@@ -1,0 +1,401 @@
+<title>Plan de Pruebas Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ink:#101B2D;
+    --ink-soft:#43526B;
+    --ground:#F6F7F9;
+    --surface:#FFFFFF;
+    --line:#DFE3EA;
+    --gold:#D6900C;
+    --navy:#1B2A4A;
+    --alert:#B4432A;
+    --display:'Archivo','Helvetica Neue',Arial,sans-serif;
+    --body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+    --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--body);font-size:16px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .deck{height:100%;position:relative;overflow:hidden}
+  .slide{
+    position:absolute;inset:0;display:none;
+    padding:clamp(28px,5vw,80px) clamp(16px,5vw,88px) clamp(70px,8vh,96px);
+    overflow-y:auto;
+  }
+  .slide.is-active{display:flex;flex-direction:column;justify-content:center;animation:rise .45s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.slide.is-active{animation:none}}
+  .wrap{width:100%;max-width:1080px;margin:0 auto}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--gold);margin:0 0 14px
+  }
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,7vw,5.2rem);line-height:.98;letter-spacing:-.02em;margin:0;text-wrap:balance}
+  h2{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,4.6vw,3.3rem);line-height:1.04;letter-spacing:-.018em;margin:0 0 18px;text-wrap:balance}
+  .lead{font-size:clamp(1rem,1.7vw,1.35rem);color:var(--ink-soft);max-width:60ch;margin:0}
+  p{margin:0 0 12px}
+  strong{font-weight:600}
+  .mono{font-family:var(--mono)}
+
+  /* portada */
+  .cover-meta{margin-top:auto;display:flex;flex-wrap:wrap;gap:28px 56px;padding-top:36px;border-top:2px solid var(--gold)}
+  .cover-meta div{min-width:180px}
+  .cover-meta span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px}
+  .cover-meta b{font-weight:600;font-size:1.02rem;display:block}
+  .cover-sub{font-size:clamp(1.05rem,2.4vw,1.7rem);color:var(--ink-soft);margin:14px 0 0;font-weight:500}
+
+  /* grilla de tarjetas */
+  .grid{display:grid;gap:14px;margin-top:26px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+  .card h3{font-family:var(--display);font-size:1.05rem;font-weight:600;margin:0 0 6px}
+  .card p{font-size:.95rem;color:var(--ink-soft);margin:0}
+  .tag{font-family:var(--mono);font-size:.72rem;color:var(--navy);background:#EDF0F6;border-radius:4px;padding:2px 7px;display:inline-block;margin-top:10px}
+
+  /* métricas */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px;margin-top:30px}
+  .stat b{display:block;font-family:var(--display);font-weight:800;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1;letter-spacing:-.02em}
+  .stat span{display:block;font-size:.92rem;color:var(--ink-soft);margin-top:8px;max-width:22ch}
+  .stat.gold b{color:var(--gold)}
+
+  /* lista numerada de supuestos */
+  ol.plain{margin:24px 0 0;padding:0;list-style:none;counter-reset:n;display:grid;gap:12px}
+  ol.plain li{counter-increment:n;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;font-size:1rem}
+  ol.plain li::before{content:counter(n);font-family:var(--mono);font-size:.8rem;color:var(--gold);border:1px solid var(--line);border-radius:50%;width:28px;height:28px;display:grid;place-items:center}
+
+  /* flujo de etapas */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:28px}
+  .step{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:8px;padding:14px 16px}
+  .step em{font-family:var(--mono);font-style:normal;font-size:.72rem;color:var(--gold);display:block;margin-bottom:6px}
+  .step b{display:block;font-family:var(--display);font-size:1rem;margin-bottom:4px}
+  .step span{font-size:.86rem;color:var(--ink-soft)}
+  .flow-note{font-size:.86rem;color:var(--ink-soft);margin-top:12px;font-style:italic}
+
+  /* tabla */
+  table{width:100%;border-collapse:collapse;margin-top:24px;font-size:.93rem}
+  caption{caption-side:bottom;text-align:left;font-size:.8rem;color:var(--ink-soft);padding-top:10px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  td.num{font-variant-numeric:tabular-nums;text-align:right}
+  tr.total td{font-weight:600;border-bottom:none}
+  .scroll{overflow-x:auto}
+
+  /* prioridades */
+  .prio{display:grid;gap:10px;margin-top:26px}
+  .prio-row{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:8px;padding:14px 18px}
+  .prio-row.p1{border-left-color:var(--alert)}
+  .prio-row.p2{border-left-color:var(--gold)}
+  .prio-row b{font-family:var(--mono);font-size:.82rem}
+  .prio-row span{font-size:.97rem}
+  .prio-row i{font-family:var(--mono);font-style:normal;font-size:.76rem;color:var(--ink-soft);text-align:right}
+
+  /* caso destacado */
+  .case{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:24px}
+  .case header{background:var(--navy);color:#fff;padding:12px 18px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+  .case header b{font-family:var(--mono);font-size:.85rem}
+  .case header span{font-size:.95rem}
+  .case dl{margin:0;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:.95rem}
+  .case dt{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);padding-top:3px}
+  .case dd{margin:0}
+
+  .closing{display:grid;gap:14px;margin-top:26px;max-width:70ch}
+  .closing p{font-size:1.06rem;margin:0;padding-left:16px;border-left:2px solid var(--gold)}
+  .repo{margin-top:28px;font-family:var(--mono);font-size:.85rem;color:var(--ink-soft);word-break:break-all}
+
+  /* barra inferior */
+  .bar{position:fixed;left:0;right:0;bottom:0;padding:10px clamp(16px,5vw,88px);padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    display:flex;align-items:center;gap:16px;background:rgba(246,247,249,.94);border-top:1px solid var(--line);backdrop-filter:blur(6px)}
+  .bar .who{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .bar .who b{color:var(--navy);font-weight:600}
+  .track{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+  .track i{display:block;height:100%;background:var(--gold);width:8%;transition:width .35s ease}
+  .bar nav{display:flex;gap:6px}
+  .bar button{font-family:var(--mono);font-size:.8rem;color:var(--navy);background:var(--surface);border:1px solid var(--line);border-radius:6px;width:34px;height:30px;cursor:pointer}
+  .bar button:hover{border-color:var(--navy)}
+  .bar button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .count{font-family:var(--mono);font-size:.78rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  @media (max-width:560px){.bar .who{display:none}}
+</style>
+
+<div class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide" data-who="Elías Delgado Manríquez y Rolando Aldana">
+    <div class="wrap" style="display:flex;flex-direction:column;height:100%">
+      <p class="eyebrow">Evaluación Parcial 1 · Caso semestral, Forma A</p>
+      <h1>Plan de<br>pruebas</h1>
+      <p class="cover-sub">Sistema de Gestión Atlas · CreaLab SpA</p>
+      <div class="cover-meta">
+        <div><span>Asignatura</span><b>ISY1102 · Seguridad y Calidad en el Desarrollo de Software</b></div>
+        <div><span>Sección</span><b>004V</b></div>
+        <div><span>Integrantes</span><b>Elías Delgado Manríquez<br>Rolando Aldana</b></div>
+        <div><span>Docente</span><b>Johnnathan René Cubillos Flores</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" data-who="Elías Delgado">
+    <div class="wrap">
+      <p class="eyebrow">El sistema bajo prueba</p>
+      <h2>Atlas administra clientes, contratos y documentos de varias empresas en una sola plataforma.</h2>
+      <p class="lead">Una aplicación de página única en React consume una API REST en Express sobre PostgreSQL. La sesión usa JWT de corta vigencia, las contraseñas se guardan con bcrypt y todo el tráfico viaja sobre TLS.</p>
+      <div class="grid g3">
+        <div class="card">
+          <h3>Dos roles internos</h3>
+          <p>El administrador escribe; el editor solo consulta. Ningún usuario debe cruzar la frontera de su empresa.</p>
+          <span class="tag">RB-2 · RB-4</span>
+        </div>
+        <div class="card">
+          <h3>Datos sensibles</h3>
+          <p>Nombres, RUT, contactos y datos bancarios de los clientes de cada pyme.</p>
+          <span class="tag">NFR-SEG-3 · NFR-SEG-8</span>
+        </div>
+        <div class="card">
+          <h3>Usuarios mayores</h3>
+          <p>La ERS pide atención explícita a la usabilidad para adultos mayores, en escritorio y móvil.</p>
+          <span class="tag">NFR-USAB-1 a 4</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" data-who="Elías Delgado">
+    <div class="wrap">
+      <p class="eyebrow">Clasificación del producto</p>
+      <h2>Un error de autorización no es solo una falla funcional.</h2>
+      <p class="lead">Si una empresa alcanza los datos de otra, el mismo defecto golpea la calidad, la seguridad y el cumplimiento legal. Esa condición ordena todas las prioridades del plan.</p>
+      <div class="grid g3">
+        <div class="card"><h3>Calidad</h3><p>Sistema transaccional de gestión, criticidad media-alta: CRUD, umbrales de respuesta y disponibilidad comprometida.</p></div>
+        <div class="card"><h3>Seguridad</h3><p>Plataforma multiempresa con datos personales y bancarios: control de acceso por rol y cifrado en reposo.</p></div>
+        <div class="card"><h3>Cumplimiento</h3><p>Responsable del tratamiento de datos de terceros bajo ley chilena: auditoría y acceso restringido por empresa.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" data-who="Elías Delgado">
+    <div class="wrap">
+      <p class="eyebrow">Criterios de calidad · ISO/IEC 25010</p>
+      <h2>Cada característica del modelo se probó contra un número, no contra una intención.</h2>
+      <div class="stats">
+        <div class="stat gold"><b>300 ms</b><span>Percentil 95 en operaciones CRUD simples</span></div>
+        <div class="stat gold"><b>2 s</b><span>Carga de la página principal en red móvil</span></div>
+        <div class="stat gold"><b>200</b><span>Usuarios concurrentes sostenidos</span></div>
+        <div class="stat gold"><b>99,5 %</b><span>Disponibilidad mensual objetivo</span></div>
+        <div class="stat gold"><b>SUS 70</b><span>Puntaje mínimo de usabilidad que propusimos</span></div>
+      </div>
+      <p class="lead" style="margin-top:28px">Adecuación funcional, eficiencia, usabilidad, confiabilidad, compatibilidad y mantenibilidad quedan con métrica y requerimiento asociado. La seguridad se trata aparte por su peso en este proyecto.</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" data-who="Elías Delgado">
+    <div class="wrap">
+      <p class="eyebrow">Seguridad y marco normativo</p>
+      <h2>La ley chilena define el piso; OWASP define cómo comprobarlo.</h2>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Ley 19.628 y Ley 21.719</h3>
+          <p>Protección de datos personales. La 21.719 exige responsabilidad proactiva: hay que poder demostrar las medidas adoptadas, no solo declararlas.</p>
+          <span class="tag">Evidencia: CP-03 y registros de auditoría</span>
+        </div>
+        <div class="card">
+          <h3>Ley 21.663 y Ley 21.459</h3>
+          <p>Marco de ciberseguridad y delitos informáticos. Fundamentan la seguridad desde el diseño y el pentest con autorización escrita.</p>
+          <span class="tag">Seguridad por diseño</span>
+        </div>
+        <div class="card">
+          <h3>OWASP Top 10 y ASVS nivel 2</h3>
+          <p>Control de acceso, criptografía, inyección y autenticación se verifican con casos propios; dependencias y registro, con el pipeline.</p>
+          <span class="tag">A01 · A02 · A03 · A07</span>
+        </div>
+        <div class="card">
+          <h3>ISO/IEC 27001 y WCAG 2.1 AA</h3>
+          <p>Controles de cifrado, respaldo y registro por un lado; contraste, teclado y lector de pantalla por el otro.</p>
+          <span class="tag">Accesibilidad exigible</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" data-who="Elías Delgado">
+    <div class="wrap">
+      <p class="eyebrow">Hallazgo del análisis</p>
+      <h2>La ERS llega con vacíos, y un plan de pruebas los deja por escrito.</h2>
+      <p class="lead">Estos cuatro puntos cambian los criterios de aceptación. Se trabajan como supuestos declarados hasta que CreaLab los confirme.</p>
+      <ol class="plain">
+        <li><span>Tipografía de 12 px para un público adulto mayor. Proponemos 16 px como mínimo.</span></li>
+        <li><span>RF-4.1 permite crear clientes a "los usuarios", pero RB-4 deja al editor en solo lectura. Asumimos que manda RB-4.</span></li>
+        <li><span>El estado "vence" no tiene umbral. Asumimos 30 días antes del término del contrato.</span></li>
+        <li><span>No hay requerimientos de consentimiento ni de notificación de brechas, exigibles bajo la Ley 21.719.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" data-who="Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Continúa Rolando Aldana · Estrategia</p>
+      <h2>Enfoque mixto, ordenado por riesgo y con la seguridad al inicio.</h2>
+      <p class="lead">Lo repetitivo se automatiza en integración continua; lo que exige criterio humano se ejecuta a mano. El análisis de código y de dependencias corre desde el primer commit.</p>
+      <div class="flow">
+        <div class="step"><em>Etapa 1</em><b>Planificación</b><span>Análisis de la ERS y riesgos</span></div>
+        <div class="step"><em>Etapa 2</em><b>Diseño</b><span>Casos y matriz de trazabilidad</span></div>
+        <div class="step"><em>Etapa 3</em><b>Preparación</b><span>Ambiente QA, datos y pipeline</span></div>
+        <div class="step"><em>Etapa 4</em><b>Ejecución</b><span>Funcional, no funcional y seguridad</span></div>
+        <div class="step"><em>Etapa 5</em><b>Cierre</b><span>Criterios de salida e informe</span></div>
+      </div>
+      <p class="flow-note">Cada corrección vuelve a la reprueba y arrastra la regresión del módulo afectado.</p>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" data-who="Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Tipos de prueba</p>
+      <h2>Siete frentes, cada uno con un propósito distinto.</h2>
+      <div class="grid g3">
+        <div class="card"><h3>Funcionales</h3><p>Unitarias, sistema y regresión sobre RF-1 a RF-6 y las reglas de negocio.</p></div>
+        <div class="card"><h3>Integración</h3><p>Carga de documento: API, storage interno, base de datos y auditoría en una sola cadena.</p></div>
+        <div class="card"><h3>Seguridad</h3><p>Análisis estático, escaneo dinámico, control de acceso, sesión y pentest con checklist ASVS.</p></div>
+        <div class="card"><h3>Rendimiento</h3><p>Carga con la concurrencia esperada y estrés para hallar el punto de degradación.</p></div>
+        <div class="card"><h3>Usabilidad y accesibilidad</h3><p>Cinco adultos mayores, cuestionario SUS y revisión WCAG con lector de pantalla.</p></div>
+        <div class="card"><h3>Compatibilidad</h3><p>Chrome, Firefox, Safari y Edge en sus dos últimas versiones, más móvil y tablet.</p></div>
+        <div class="card"><h3>Aceptación</h3><p>El Product Owner recorre los flujos en preproducción antes del cierre.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide" data-who="Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Priorización y criterios de salida</p>
+      <h2>Primero lo que expone datos de terceros.</h2>
+      <div class="prio">
+        <div class="prio-row p1"><b>P1</b><span>Una empresa accede a datos de otra, o el editor logra escribir</span><i>RB-2 · RB-4 · NFR-SEG-4</i></div>
+        <div class="prio-row p1"><b>P1</b><span>Inyección SQL, XSS o CSRF</span><i>NFR-SEG-5</i></div>
+        <div class="prio-row p1"><b>P1</b><span>Sesión válida después del cierre o token manipulado</span><i>RF-1.2 · NFR-SEG-9</i></div>
+        <div class="prio-row p2"><b>P2</b><span>Estado de contrato mal calculado o umbrales de rendimiento incumplidos</span><i>RF-5.4 · NFR-PERF</i></div>
+        <div class="prio-row"><b>P3</b><span>Barreras de usabilidad o diferencias entre navegadores</span><i>NFR-USAB · NFR-COMPAT</i></div>
+      </div>
+      <p class="lead" style="margin-top:24px">Se cierra la ejecución con el 100 % de los casos P1 aprobados, sin defectos críticos o altos abiertos, sin vulnerabilidades críticas en el pentest y con el informe aprobado por el Product Owner.</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" data-who="Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Diseño de casos · 9 casos</p>
+      <h2>Tres funcionales, tres de seguridad, tres no funcionales.</h2>
+      <div class="case">
+        <header><b>CP-03</b><span>Aislamiento de datos entre empresas</span><b style="margin-left:auto">RB-2 · NFR-SEG-4 · NFR-SEG-8</b></header>
+        <dl>
+          <dt>Pasos</dt><dd>Con sesión de administrador de la empresa A, pedir clientes y contratos de la empresa B cambiando el identificador en la petición.</dd>
+          <dt>Esperado</dt><dd>Respuesta 403 o 404 sin revelar un solo dato de B, con identificadores correlativos y aleatorios.</dd>
+          <dt>Evidencia</dt><dd>Se archiva como respaldo de cumplimiento de la Ley 19.628.</dd>
+        </dl>
+      </div>
+      <p class="lead" style="margin-top:22px">Los otros ocho cubren login y hash, permisos del editor, CRUD con eliminación lógica, estado del contrato, inyección, carga con 200 usuarios, usabilidad con adultos mayores y compatibilidad.</p>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" data-who="Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Cobertura y trazabilidad</p>
+      <h2>Los 42 requerimientos de la ERS quedan trazados.</h2>
+      <div class="stats" style="margin-top:22px">
+        <div class="stat"><b>42</b><span>Requerimientos trazados a una prueba</span></div>
+        <div class="stat gold"><b>27</b><span>Con caso detallado en el informe, el 64 %</span></div>
+        <div class="stat"><b>15</b><span>Con suite o actividad planificada para la iteración 2</span></div>
+      </div>
+      <div class="scroll">
+        <table>
+          <caption>Cobertura por grupo de requerimientos. El detalle completo está en el Anexo A del informe.</caption>
+          <thead><tr><th>Grupo</th><th>Total</th><th>Con caso</th><th>Planificado</th></tr></thead>
+          <tbody>
+            <tr><td>Funcionales y reglas de negocio</td><td class="num">22</td><td class="num">11</td><td class="num">11</td></tr>
+            <tr><td>Seguridad</td><td class="num">9</td><td class="num">6</td><td class="num">3</td></tr>
+            <tr><td>Rendimiento y disponibilidad</td><td class="num">5</td><td class="num">4</td><td class="num">1</td></tr>
+            <tr><td>Usabilidad y compatibilidad</td><td class="num">6</td><td class="num">6</td><td class="num">0</td></tr>
+            <tr class="total"><td>Total</td><td class="num">42</td><td class="num">27</td><td class="num">15</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" data-who="Elías Delgado y Rolando Aldana">
+    <div class="wrap">
+      <p class="eyebrow">Cierre</p>
+      <h2>Un plan que sirve para encontrar defectos y para demostrar cumplimiento.</h2>
+      <div class="closing">
+        <p>El mayor esfuerzo está donde el riesgo es mayor: control de acceso y protección de datos, sin descuidar rendimiento ni usabilidad.</p>
+        <p>Cada requerimiento queda conectado a una prueba y a una norma, de modo que la evidencia sirve ante la Ley 19.628 y la Ley 21.719.</p>
+        <p>La iteración 2 parte con tarea definida: casos de sesión, enlace compartido, cifrado en reposo y respaldo, más los supuestos que CreaLab debe confirmar.</p>
+      </div>
+      <p class="repo">Informe y matriz: github.com/ChicoElias/ISY1102-EP1-Plan-Pruebas-Atlas</p>
+    </div>
+  </section>
+</div>
+
+<div class="bar">
+  <div class="who">Expone <b id="who">Elías Delgado</b></div>
+  <div class="track"><i id="prog"></i></div>
+  <nav>
+    <button id="prev" type="button" aria-label="Diapositiva anterior">←</button>
+    <button id="next" type="button" aria-label="Diapositiva siguiente">→</button>
+  </nav>
+  <div class="count"><span id="cur">1</span> / <span id="tot">12</span></div>
+</div>
+
+<script>
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var cur = 0;
+  var elWho = document.getElementById('who');
+  var elCur = document.getElementById('cur');
+  var elProg = document.getElementById('prog');
+  document.getElementById('tot').textContent = slides.length;
+
+  function show(i){
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function(s, k){ s.classList.toggle('is-active', k === cur); });
+    elWho.textContent = slides[cur].dataset.who;
+    elCur.textContent = cur + 1;
+    elProg.style.width = ((cur + 1) / slides.length * 100) + '%';
+    try { localStorage.setItem('atlas-deck-slide', String(cur)); } catch (e) {}
+  }
+  document.getElementById('next').addEventListener('click', function(){ show(cur + 1); });
+  document.getElementById('prev').addEventListener('click', function(){ show(cur - 1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); show(cur + 1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(cur - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  var x0 = null;
+  document.addEventListener('touchstart', function(e){ x0 = e.changedTouches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 60) show(cur + (dx < 0 ? 1 : -1));
+    x0 = null;
+  }, {passive:true});
+
+  var start = 0;
+  try { var saved = parseInt(localStorage.getItem('atlas-deck-slide'), 10); if (!isNaN(saved)) start = saved; } catch (e) {}
+  show(start);
+</script>
