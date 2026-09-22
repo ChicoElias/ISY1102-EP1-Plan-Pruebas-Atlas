@@ -1,0 +1,718 @@
+{
+  "info": {
+    "name": "Atlas - endpoints críticos (EP1)",
+    "description": "Colección de endpoints críticos de Atlas que pide la ERS (sección 3.1.2). Cada carpeta corresponde a un caso de prueba del informe. Las credenciales y la URL del ambiente QA van en el environment, no en la colección.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "CP-01 Inicio de sesión",
+      "item": [
+        {
+          "name": "Login administrador",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{adminUser}}\",\n  \"password\": \"{{adminPass}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CP-01: login con credenciales validas",
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Tarda menos de 300 ms\", () => pm.expect(pm.response.responseTime).to.be.below(300));",
+                  "pm.test(\"La URL usa HTTPS\", () => pm.expect(pm.request.url.protocol).to.eql(\"https\"));",
+                  "",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Entrega JWT y refresh token\", () => {",
+                  "    pm.expect(body.token).to.be.a(\"string\");",
+                  "    pm.expect(body.refreshToken).to.be.a(\"string\");",
+                  "});",
+                  "pm.test(\"No devuelve la contraseña ni el hash\", () => {",
+                  "    const txt = pm.response.text();",
+                  "    pm.expect(txt).to.not.include(\"password\");",
+                  "    pm.expect(txt).to.not.include(\"$2b$\");",
+                  "});",
+                  "",
+                  "// el payload del JWT viene en base64url, se decodifica para revisar la expiracion",
+                  "const payload = JSON.parse(CryptoJS.enc.Base64.parse(",
+                  "    body.token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\")",
+                  ").toString(CryptoJS.enc.Utf8));",
+                  "pm.test(\"El JWT dura 15 minutos o menos\", () => pm.expect(payload.exp - payload.iat).to.be.at.most(900));",
+                  "",
+                  "pm.environment.set(\"tokenAdmin\", body.token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CP-02 Rol editor sin escritura",
+      "item": [
+        {
+          "name": "Login editor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{editorUser}}\",\n  \"password\": \"{{editorPass}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login del editor OK\", () => pm.response.to.have.status(200));",
+                  "pm.environment.set(\"tokenEditor\", pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editor intenta crear contrato",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contratos"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": \"{{clienteEmpresaA}}\",\n  \"fechaInicio\": \"2026-01-01\",\n  \"fechaTermino\": \"2026-12-31\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editor intenta editar cliente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteEmpresaA}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{clienteEmpresaA}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"+56 9 1111 2222\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editor intenta eliminar cliente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteEmpresaA}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{clienteEmpresaA}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CP-03 Aislamiento entre empresas",
+      "item": [
+        {
+          "name": "Listar clientes de la empresa B",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/empresas/102/clients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "empresas",
+                "102",
+                "clients"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "El admin pertenece a la empresa 101."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
+                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
+                  "    const txt = pm.response.text();",
+                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
+                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver cliente de la empresa B",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/5530",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "5530"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
+                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
+                  "    const txt = pm.response.text();",
+                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
+                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar contrato de la empresa B",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/contratos/{{contratoEmpresaB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "contratos",
+                "{{contratoEmpresaB}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fechaTermino\": \"2027-01-01\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
+                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
+                  "    const txt = pm.response.text();",
+                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
+                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CP-04 Validación de clientes",
+      "item": [
+        {
+          "name": "Crear cliente válido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Comercial Ñuñoa Ltda.\",\n  \"rut\": \"76.123.456-0\",\n  \"telefono\": \"+56 9 8765 4321\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cliente creado (201)\", () => pm.response.to.have.status(201));",
+                  "pm.environment.set(\"clienteId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear cliente con datos inválidos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Prueba inválida\",\n  \"rut\": \"12.345.678-X\",\n  \"telefono\": \"98ab76\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"La API rechaza RUT y teléfono inválidos (422)\", () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CP-06 Inyección, XSS y CSRF",
+      "item": [
+        {
+          "name": "SQLi en el login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"' OR '1'='1' --\",\n  \"password\": \"x\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"La inyección no da acceso\", () => pm.expect(pm.response.code).to.be.oneOf([400, 401, 422]));",
+                  "pm.test(\"El error no muestra detalles de la base de datos\", () => {",
+                  "    const txt = pm.response.text().toLowerCase();",
+                  "    [\"syntax\", \"postgres\", \"sql\", \"stack\"].forEach(p => pm.expect(txt).to.not.include(p));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "SQLi en el filtro de clientes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes?nombre=' OR '1'='1' --",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ],
+              "query": [
+                {
+                  "key": "nombre",
+                  "value": "' OR '1'='1' --"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El filtro no se rompe con la carga\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400]));",
+                  "pm.test(\"No devuelve todos los clientes\", () => {",
+                  "    if (pm.response.code === 200) pm.expect(pm.response.json().data || []).to.have.lengthOf(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "XSS en la descripción del cliente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razonSocial\": \"Cliente XSS\",\n  \"rut\": \"76.123.456-0\",\n  \"descripcion\": \"<script>alert('xss')</script>\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Guarda o rechaza, pero nunca devuelve el script sin escapar\", () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 422]);",
+                  "    pm.expect(pm.response.text()).to.not.include(\"<script>\");",
+                  "});",
+                  "pm.test(\"Hay cabecera CSP\", () => pm.expect(pm.response.headers.has(\"Content-Security-Policy\")).to.be.true);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Modificación desde otro origen",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "https://sitio-externo.example"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{clienteId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telefono\": \"+56 9 0000 0000\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// se manda con un token valido pero desde otro origen y sin token CSRF",
+                  "pm.test(\"Una petición desde otro origen se rechaza\", () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
