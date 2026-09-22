@@ -1,0 +1,15 @@
+{
+  "name": "atlas-plan-de-pruebas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pruebas automatizadas propuestas en el plan de pruebas de Atlas (ISY1102 - EP1)",
+  "scripts": {
+    "test:api": "newman run pruebas/api/atlas-endpoints-criticos.postman_collection.json -e pruebas/api/atlas-qa.postman_environment.json",
+    "test:e2e": "playwright test --config pruebas/e2e/playwright.config.js",
+    "test:carga": "k6 run pruebas/rendimiento/carga_atlas.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.50.0",
+    "newman": "^6.2.1"
+  }
+}
