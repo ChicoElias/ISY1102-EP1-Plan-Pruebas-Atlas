@@ -1,0 +1,72 @@
+# Pipeline de pruebas de Atlas (sección 3.4 del informe).
+# Se ejecuta a mano desde la pestaña Actions, porque todavía no existe el
+# ambiente QA de CreaLab. Cuando lo habiliten se agrega "pull_request" para
+# que corra en cada integración, como dice el plan.
+# Las credenciales van como secrets del repositorio, nunca en el código.
+
+name: Pruebas Atlas
+
+on:
+  workflow_dispatch:
+
+env:
+  BASE_URL: ${{ secrets.ATLAS_BASE_URL }}
+  ATLAS_USER: admin.pyme01
+  ATLAS_PASS: ${{ secrets.ATLAS_ADMIN_PASS }}
+
+jobs:
+  api:
+    name: API y seguridad (CP-01 a CP-06)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Colección Postman con Newman
+        run: >
+          npx newman run pruebas/api/atlas-endpoints-criticos.postman_collection.json
+          -e pruebas/api/atlas-qa.postman_environment.json
+          --env-var "baseUrl=$BASE_URL"
+          --env-var "adminPass=$ATLAS_PASS"
+          --env-var "editorPass=${{ secrets.ATLAS_EDITOR_PASS }}"
+      - name: Dependencias vulnerables
+        run: npm audit --audit-level=high
+
+  e2e:
+    name: Compatibilidad entre navegadores (CP-09)
+    runs-on: ubuntu-latest
+    needs: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx playwright install --with-deps
+      - run: npx playwright test --config pruebas/e2e/playwright.config.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reporte-playwright
+          path: playwright-report/
+
+  zap:
+    name: Escaneo OWASP ZAP (CP-06)
+    runs-on: ubuntu-latest
+    needs: api
+    steps:
+      - uses: zaproxy/action-baseline@v0.12.0
+        with:
+          target: ${{ secrets.ATLAS_BASE_URL }}
+          allow_issue_writing: false
+
+  carga:
+    name: Carga con 200 usuarios (CP-07)
+    runs-on: ubuntu-latest
+    needs: [api, e2e]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - run: k6 run pruebas/rendimiento/carga_atlas.js
