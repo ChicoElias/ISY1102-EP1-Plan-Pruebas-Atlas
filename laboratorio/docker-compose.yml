@@ -1,0 +1,35 @@
+name: atlas-qa
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: atlas-db
+    environment:
+      POSTGRES_USER: atlas
+      POSTGRES_PASSWORD: atlas_lab_pw
+      POSTGRES_DB: atlas
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas -d atlas"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./api
+    container_name: atlas-api
+    environment:
+      PORT: 8443
+      DB_HOST: db
+      DB_USER: atlas
+      DB_PASSWORD: atlas_lab_pw
+      DB_NAME: atlas
+      JWT_SECRET: atlas-lab-secret-no-produccion
+      ADMIN_PASS: Atlas.Admin2026
+      EDITOR_PASS: Atlas.Editor2026
+    ports:
+      - "8443:8443"
+    depends_on:
+      db:
+        condition: service_healthy

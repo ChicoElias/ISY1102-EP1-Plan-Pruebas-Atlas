@@ -1,0 +1,15 @@
+{
+  "name": "Atlas QA (contenedor)",
+  "values": [
+    { "key": "baseUrl", "value": "https://atlas-api:8443", "enabled": true },
+    { "key": "adminUser", "value": "admin.pyme01", "enabled": true },
+    { "key": "adminPass", "value": "Atlas.Admin2026", "enabled": true },
+    { "key": "editorUser", "value": "editor.pyme01", "enabled": true },
+    { "key": "editorPass", "value": "Atlas.Editor2026", "enabled": true },
+    { "key": "clienteEmpresaA", "value": "101", "enabled": true },
+    { "key": "contratoEmpresaB", "value": "7700", "enabled": true },
+    { "key": "tokenAdmin", "value": "", "enabled": true },
+    { "key": "tokenEditor", "value": "", "enabled": true },
+    { "key": "clienteId", "value": "", "enabled": true }
+  ]
+}
