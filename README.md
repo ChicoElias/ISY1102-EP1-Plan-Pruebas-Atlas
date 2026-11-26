@@ -1,157 +1,323 @@
-<p align="center">
-  <img src="assets/duoc.png" alt="Duoc UC" width="260">
-</p>
+<div align="center">
 
-<h1 align="center">Atlas: verificación de seguridad y calidad</h1>
+<img src="assets/duoc.png" alt="Duoc UC" width="220">
 
-<p align="center">
-  Suite QA del <b>Grupo 15</b> (ISY1102, Duoc UC) para <b>Atlas</b>, la plataforma de CreaLab SpA con la que las pymes gestionan clientes, contratos y documentos.
-</p>
+# Atlas · Verificación de seguridad y calidad
 
-## Propósito
+**Suite de pruebas automatizadas para Atlas, la plataforma de CreaLab SpA con la que distintas pymes gestionan sus clientes, contratos y documentos en un mismo sistema.**
 
-Verificar el código oficial de Atlas (Caso A, Docker) contra la ERS: requerimientos funcionales (RF), reglas de negocio (RB) y no funcionales (NFR) de seguridad, rendimiento, accesibilidad y compatibilidad. El marco de referencia es la Ley 19.628 / 21.719 de datos personales, OWASP Top 10 y WCAG 2.1 AA.
+<br>
 
-## Stack probado
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js_18-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express_4-000000?style=for-the-badge&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL_15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-| Capa | Tecnología | Puerto host |
+![Postman](https://img.shields.io/badge/Postman_·_Newman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright_·_Chromium-2EAD33?style=for-the-badge&logo=googlechrome&logoColor=white)
+![k6](https://img.shields.io/badge/Grafana_k6-7D64FF?style=for-the-badge&logo=k6&logoColor=white)
+![axe-core](https://img.shields.io/badge/axe--core_·_WCAG_2.1-663399?style=for-the-badge&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMy41IiByPSIyLjIiLz48cGF0aCBkPSJNMyA3LjJsLjYtMS45QzcgNi4zIDkuNSA2LjggMTIgNi44czUtLjUgOC40LTEuNWwuNiAxLjljLTIuNi44LTQuNiAxLjMtNi41IDEuNXY0LjRsMi42IDguNC0xLjkuNkwxMi41IDE1aC0xbC0yLjcgNy4xLTEuOS0uNiAyLjYtOC40VjguN0M3LjYgOC41IDUuNiA4IDMgNy4yeiIvPjwvc3ZnPg==)
+![npm](https://img.shields.io/badge/npm_audit-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+
+<br>
+
+![Dictamen](https://img.shields.io/badge/dictamen-no_apto_para_producción-C0392B?style=flat-square)
+![Resultados](https://img.shields.io/badge/requerimientos-7_aprobados_·_15_con_fallas-1D6FA5?style=flat-square)
+![Rama](https://img.shields.io/badge/rama-qa--release--v2-0B1F3A?style=flat-square&logo=git&logoColor=white)
+![Última corrida](https://img.shields.io/badge/última_corrida-26--11--2026-64748B?style=flat-square)
+
+[Inicio rápido](#-inicio-rápido) · [Resultados](#-resultados) · [Evidencias](#-evidencias) · [Estructura](#-estructura-del-repositorio) · [Hoja de ruta](#-hoja-de-ruta)
+
+</div>
+
+---
+
+## 📌 Resumen
+
+Atlas guarda en una misma base de datos la información de varias empresas, incluidos RUT y cuentas bancarias de sus clientes. Cada empresa debe ver solo lo suyo, y por eso esta suite pone el foco en el control de acceso, la protección de datos personales, el rendimiento y la accesibilidad para adultos mayores.
+
+Las pruebas se ejecutan sobre el **código oficial de Atlas desplegado con Docker, sin modificarlo**. Cada falla queda registrada como hallazgo, con su evidencia y su propuesta de corrección.
+
+> [!IMPORTANT]
+> **Dictamen de la última verificación: no apto para producción.**
+> Hay tres problemas críticos abiertos: el servidor no valida los permisos de cada rol, una empresa puede leer datos de otra cambiando un identificador y las contraseñas se guardan sin cifrar. Hasta corregirlos, el sistema expone datos protegidos por la Ley 19.628 y la Ley 21.719.
+
+---
+
+## 🧭 Qué se verifica
+
+| Área | Qué se comprueba | Herramienta |
 |---|---|---|
-| Frontend | React 19 · MUI 7 · Tailwind · Vite 7 · nginx | `3350` |
-| Backend | Node 18 · Express 4 · JWT · multer · Swagger (`/docs`) | `4450` |
-| Base de datos | PostgreSQL 15 | `15432` |
+| 🔐 **Acceso y sesión** | Inicio de sesión, bloqueo tras intentos fallidos, política de contraseñas, permisos por rol | Postman · Newman |
+| 🏢 **Aislamiento entre empresas** | Que una empresa no pueda leer ni modificar datos de otra | Postman · Newman |
+| 🛡️ **Ataques comunes** | Inyección SQL y scripts maliciosos guardados en formularios | Postman · Newman |
+| 🗄️ **Protección de contraseñas** | Que se almacenen con hash seguro (bcrypt) | Consulta directa a PostgreSQL |
+| 📦 **Dependencias y código** | Librerías con vulnerabilidades conocidas y errores de calidad | npm audit · ESLint |
+| ⚡ **Rendimiento** | Tiempo de respuesta bajo carga (meta: menos de 300 ms) | Grafana k6 |
+| ♿ **Accesibilidad** | Tamaño de texto, contraste, botones legibles y uso en celular (WCAG 2.1 AA) | Playwright · axe-core |
 
-## Flujo QA
+---
+
+## 🏗️ Arquitectura
 
 ```mermaid
-flowchart LR
-  A[Docker<br/>docker-compose up] --> B[SAST<br/>npm audit + ESLint]
-  B --> C[API / DAST<br/>Newman + k6]
-  C --> D[Playwright<br/>axe-core 375px · 1440px]
-  D --> E[PostgreSQL<br/>psql en contenedor]
-  E --> F[Matriz + reporte]
+flowchart TB
+    U([👤 Usuario]) --> FE
+
+    subgraph Docker["🐳 Atlas en Docker Compose"]
+        direction LR
+        FE["<b>Frontend</b><br/>React 19 · MUI 7 · nginx<br/><i>localhost:3350</i>"]
+        BE["<b>API</b><br/>Node 18 · Express 4 · JWT<br/><i>localhost:4450</i>"]
+        DB[("<b>PostgreSQL 15</b><br/><i>localhost:15432</i>")]
+        FE --> BE --> DB
+    end
+
+    subgraph QA["🧪 Suite de pruebas"]
+        direction LR
+        P["Playwright + axe<br/><i>interfaz y accesibilidad</i>"]
+        N["Newman<br/><i>API y seguridad</i>"]
+        K["k6<br/><i>carga</i>"]
+        S["psql<br/><i>base de datos</i>"]
+    end
+
+    P -.-> FE
+    N -.-> BE
+    K -.-> BE
+    S -.-> DB
 ```
 
-## Estructura
+| Servicio | Tecnología | Dirección local |
+|---|---|---|
+| Frontend | React 19, MUI 7, Vite 7 servido por nginx | http://localhost:3350 |
+| API | Node 18, Express 4, autenticación con JWT | http://localhost:4450 (documentación en `/docs`) |
+| Base de datos | PostgreSQL 15 | `localhost:15432` |
+
+---
+
+## 🚀 Inicio rápido
+
+### Requisitos
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) con Docker Compose
+- [Node.js](https://nodejs.org/) 18 o superior
+- El código de Atlas en una carpeta hermana llamada `CodigoFuenteETA/`
 
 ```
-pruebas/
-  api/           colección Postman (48 requests, IDs de requerimiento en cada aserción) + preparar-datos.js
-  e2e/           capturas de despliegue, auditoría de accesibilidad, flujo principal (CP-09)
-  rendimiento/   carga_atlas.js (k6, perfil configurable por variables)
-  sast/          sast-atlas.js: npm audit backend/frontend + ESLint
-  reportes/      renderizado de evidencias (HTML → PNG con marca de tiempo)
-  usabilidad/    guion de sesión SUS
-anexos/          matriz de trazabilidad (estado, captura, incidente) y planilla de casos
-laboratorio/     ambiente QA local usado en EP3
-docs/            informes EP1 / EP3 y defensa EP4
+📁 carpeta-de-trabajo/
+├── 📁 CodigoFuenteETA/                  ← sistema Atlas (no se modifica)
+├── 📁 ISY1102-EP1-Plan-Pruebas-Atlas/   ← este repositorio
+└── 📁 evidencias-release/               ← se crea con los resultados
 ```
 
-## Comandos rápidos
+### 1. Levantar Atlas
 
 ```bash
-# 1. SUT oficial (carpeta hermana)
-cd ../CodigoFuenteETA && docker-compose up -d --build
+cd CodigoFuenteETA
+docker-compose up -d --build
+```
 
-# 2. Suite
+Cuando los tres contenedores estén en ejecución, el frontend responde en http://localhost:3350 y la API en http://localhost:4450/docs.
+
+### 2. Instalar la suite
+
+```bash
 cd ../ISY1102-EP1-Plan-Pruebas-Atlas
-npm install && npx playwright install chromium
-npm run preparar           # qa_lockout + environment local (*.local.json, fuera de git)
-npm run test:api:docker    # RF / RB / NFR-SEG vía Newman
-npm run test:sast
-npm run test:a11y          # NFR-USAB-1, NFR-COMPAT-2 y CAP-08
-npm run evidencias         # CAP-02, CAP-04..CAP-07
-node pruebas/reportes/capturas-terminal.js   # CAP-03 y CAP-06 (salida real de consola)
+npm install
+npx playwright install chromium
+```
 
-# carga sin k6 local, desde la red de Docker
-docker run --rm -i --network atlas-network -e BASE_URL=http://atlas-backend:4000 \
-  -e ATLAS_USER=admin -e ATLAS_PASS=... -e VUS=10 -e SUBIDA=15s -e MESETA=45s -e BAJADA=5s \
+### 3. Preparar los datos de prueba
+
+```bash
+npm run preparar
+```
+
+Este paso crea un usuario exclusivo para probar el bloqueo de cuenta (así la cuenta de administrador nunca se bloquea) y genera un archivo local con las credenciales de prueba. Ese archivo termina en `.local.json` y **nunca se sube al repositorio**.
+
+### 4. Ejecutar las pruebas
+
+| Comando | Qué hace |
+|---|---|
+| `npm run test:api:docker` | Recorre la API con 48 peticiones y 43 verificaciones: acceso, roles, aislamiento entre empresas, inyección y contratos |
+| `npm run test:sast` | Revisa dependencias del backend y del frontend, y la calidad del código |
+| `npm run test:a11y` | Mide la accesibilidad en celular (375 px) y escritorio (1440 px) |
+| `npm run test:e2e` | Recorre el flujo principal en el navegador |
+
+<details>
+<summary><b>Prueba de carga con k6 (sin instalarlo)</b></summary>
+
+<br>
+
+k6 se ejecuta desde su imagen oficial de Docker, dentro de la misma red de Atlas:
+
+```bash
+docker run --rm -i --network atlas-network \
+  -e BASE_URL=http://atlas-backend:4000 \
+  -e ATLAS_USER=admin -e ATLAS_PASS=<contraseña-de-prueba> \
+  -e VUS=10 -e SUBIDA=15s -e MESETA=45s -e BAJADA=5s \
   grafana/k6 run - < pruebas/rendimiento/carga_atlas.js
 ```
 
-Las evidencias se escriben en `../evidencias-release/`, fuera del repositorio, para no versionar capturas ni logs con datos de prueba.
+`VUS` define cuántos usuarios simultáneos se simulan. Para la prueba completa de 200 usuarios basta con cambiar ese valor.
 
-## Cobertura y hallazgos (release v2, 2026-11-26)
+</details>
 
-22 requerimientos ejecutados: **7 PASS · 15 FAIL**. El detalle está en [`anexos/matriz-trazabilidad.csv`](anexos/matriz-trazabilidad.csv).
+### 5. Generar las evidencias
 
-**Dictamen: no apto para producción.** Quedan abiertos 3 incidentes críticos y 5 graves. Los tres críticos (sin control de roles en el backend, IDOR entre empresas y contraseñas en texto plano) exponen datos personales y bancarios de terceros. Mientras sigan abiertos, CreaLab no puede demostrar las medidas de seguridad que exigen la Ley 19.628 y la Ley 21.719.
+```bash
+npm run evidencias                            # despliegue, API, base de datos y rendimiento
+node pruebas/reportes/capturas-terminal.js    # salidas de consola del análisis estático y de PostgreSQL
+```
 
-| Requerimiento | Estado | Severidad | Hallazgo |
-|---|---|---|---|
-| RF-3.2 · RB-4 · NFR-SEG-4 | FAIL | Crítico | El backend no aplica roles: el editor crea, edita y elimina |
-| RB-2 | FAIL | Crítico | IDOR: contratos, PDF y usuarios de otra empresa accesibles por id |
-| NFR-SEG-2 | FAIL | Crítico | Contraseñas en texto plano (0/9 con bcrypt) |
-| RF-1.3 | FAIL | Grave | Sin bloqueo tras 5 intentos fallidos |
-| R-2.4 | FAIL | Grave | Acepta contraseñas de 4 caracteres |
-| SAST-1 | FAIL | Grave | 1 critical y 22 high entre backend y frontend; base Node 18 EOL |
-| NFR-PERF-1 | FAIL | Grave | p95 CRUD de 4004 ms por `delay(4000)` en login y listados |
-| NFR-SEG-5 · RF-4.3 | FAIL | Moderado | SQLi neutralizada; `<script>` se persiste sin sanitizar |
-| RF-5.4 | FAIL | Moderado | No existe el estado `activo` |
-| RF-6.1 | FAIL | Moderado | Los logins fallidos no se auditan |
-| NFR-USAB-1 | FAIL | Moderado | Texto de 10,5 px, contraste, botones sin nombre, objetivos < 44 px |
-| NFR-COMPAT-2 | FAIL | Moderado | En 375 px el contenido queda en 135 px (drawer permanente) |
-| RF-1.1 · RF-2.1 · RF-2.2 · RF-4.1 · RF-5.1 · RF-5.2 · RF-5.3 | PASS | — | Login JWT, registro, alta de cliente y contrato, PDF en 54 ms y recuperable |
+Las capturas, los registros y los reportes se guardan en `../evidencias-release/`, fuera del repositorio, para no versionar datos de prueba.
 
-Los 23 requerimientos restantes figuran como NO EJECUTADO. Entre ellos están:
-- TLS, porque el ambiente local corre en HTTP.
-- La carga con 200 usuarios concurrentes. La corrida usó 10 VU, suficientes para demostrar que NFR-PERF-1 no se cumple.
-- La revocación de token.
-- El respaldo con su restauración.
-- Las sesiones de usabilidad presenciales.
+---
 
-## Evidencias del release
+## 📊 Resultados
 
-Cada captura sale de la ejecución real y se puede rastrear hasta su log.
+<div align="center">
 
-| Captura | Qué muestra | Origen |
+| ✅ Aprobados | ❌ Con fallas | 🔴 Críticos | 🟠 Graves | ⏳ Pendientes |
+|:---:|:---:|:---:|:---:|:---:|
+| **7** | **15** | **3** | **5** | **23** |
+
+</div>
+
+### Lo que funciona
+
+Inicio de sesión con token, registro de usuarios y empresas, creación de clientes y contratos, y carga de documentos PDF (54 ms) con recuperación correcta.
+
+### Hallazgos principales
+
+| Severidad | Hallazgo | Impacto |
+|:---:|---|---|
+| 🔴 Crítico | El servidor no valida permisos por rol: un usuario de solo lectura puede crear, editar y borrar | Cualquier usuario puede alterar datos |
+| 🔴 Crítico | Una empresa puede leer contratos, documentos y usuarios de otra cambiando un identificador | Exposición de datos personales de terceros |
+| 🔴 Crítico | Las contraseñas se guardan en texto plano (0 de 9 con hash) | Una filtración de la base expone todas las cuentas |
+| 🟠 Grave | No hay bloqueo tras 5 intentos fallidos y se aceptan contraseñas como `1234` | Cuentas vulnerables a fuerza bruta |
+| 🟠 Grave | El registro de auditoría se puede leer sin iniciar sesión | Exposición de la actividad de todas las empresas |
+| 🟠 Grave | 1 vulnerabilidad crítica y 22 altas en librerías; Node 18 sin soporte | Riesgo conocido y explotable |
+| 🟠 Grave | Una espera fija de 4 segundos en login y listados: 4004 ms frente a la meta de 300 ms | Experiencia lenta para todos los usuarios |
+
+<details>
+<summary><b>Ver hallazgos moderados y leves</b></summary>
+
+<br>
+
+| Severidad | Hallazgo |
+|:---:|---|
+| 🟡 Moderado | Se guardan scripts en los formularios sin validar (la interfaz los neutraliza, pero quedan almacenados) |
+| 🟡 Moderado | El estado de contrato "activo" no existe; solo se calculan "por vencer" y "vencido" |
+| 🟡 Moderado | Los inicios de sesión fallidos no quedan auditados |
+| 🟡 Moderado | Texto de 10,5 px, contraste insuficiente y 8 botones sin nombre para lectores de pantalla |
+| 🟡 Moderado | En celular, el menú lateral deja solo 135 px de ancho para el contenido |
+| ⚪ Leve | Los errores del servidor muestran detalles técnicos al usuario |
+| ⚪ Leve | Variables sin uso y dependencias incompletas en el código del frontend |
+
+</details>
+
+> [!NOTE]
+> **Alcance de esta verificación.** La carga se probó con 10 usuarios simultáneos, suficiente para demostrar que no se cumple la meta de tiempo; la prueba con 200 queda para después de corregir la espera fija. El ambiente local no usa HTTPS, por lo que el cifrado en tránsito no se pudo verificar. Los 23 requerimientos pendientes están identificados en la [matriz de trazabilidad](anexos/matriz-trazabilidad.csv).
+
+---
+
+## 🖼️ Evidencias
+
+Cada captura sale de la ejecución real y se puede rastrear hasta su registro original.
+
+| Captura | Qué muestra | Cómo se obtuvo |
 |---|---|---|
-| CAP-01 | Los tres contenedores en ejecución | Docker Desktop |
-| CAP-02 | Login del frontend y Swagger de la API | Playwright, 1440x900 |
-| CAP-03 | `npm audit` de backend y frontend, y ESLint | Consola; filtrada con `Select-String`, salida completa en `logs/02-sast.json` |
-| CAP-04 | Bloqueo de cuenta y política de contraseñas | Newman |
-| CAP-05 | RBAC del editor, IDOR, SQLi y XSS | Newman |
-| CAP-06 | Contraseñas en PostgreSQL | `psql` en el contenedor; valores enmascarados (inicial + `*`) |
-| CAP-07 | Contratos, estados, auditoría y latencia | Newman y k6 |
-| CAP-08 | Accesibilidad para adultos mayores | Playwright y axe-core |
+| **CAP-01** | Los tres contenedores en ejecución | Docker Desktop |
+| **CAP-02** | Pantalla de login y documentación de la API | Navegador automatizado (Playwright) |
+| **CAP-03** | Vulnerabilidades en librerías y errores de código | Consola, con la salida resumida en pantalla y el detalle completo en el registro |
+| **CAP-04** | Bloqueo de cuenta y política de contraseñas | Newman |
+| **CAP-05** | Permisos por rol, aislamiento entre empresas e inyección | Newman |
+| **CAP-06** | Contraseñas en la base de datos | Consulta directa, con los valores enmascarados |
+| **CAP-07** | Contratos, auditoría y tiempos de respuesta | Newman y k6 |
+| **CAP-08** | Accesibilidad para adultos mayores | Playwright y axe-core |
 
-En `../evidencias-release/` quedan además:
-- **`entrega-final/`:** informe en PDF y Word, presentación y guion de exposición.
-- **`REPORTE_VERIFICACION_ATLAS_V2.md`:** el reporte técnico detallado.
-- **`borradores/`:** las fuentes de redacción.
-- **`logs/` y `html/`:** los resultados crudos.
-- **`recortes-maquetacion/`:** los recortes usados en los documentos.
-- **`capturas-html-previas/`:** las versiones anteriores de las capturas.
+La matriz de trazabilidad conecta cada requerimiento con su caso de prueba, su verificación, su captura y, si falló, su hallazgo.
 
-## Remediación y continuidad
+---
 
-Orden de corrección propuesto según el riesgo:
-1. Autorización en el servidor: rol y empresa validados en cada petición, con 404 para recursos de otra empresa.
-2. `bcrypt` (coste ≥ 12), con migración de las contraseñas actuales.
-3. Bloqueo tras 5 intentos, política de 12 caracteres con complejidad y auditoría de logins fallidos.
-4. Eliminar los `delay(4000)` y repetir la carga con 200 VU.
-5. Actualizar dependencias y la imagen base a `node:22-alpine`.
-6. Corregir la tipografía, el contraste, los nombres accesibles y el layout móvil.
+## 📂 Estructura del repositorio
 
-Para que la calidad se sostenga después del release:
-- **CI:** cada pull request corre `npm audit --audit-level=high`, lint, esta colección Newman y la auditoría axe. Cada incidente cerrado mantiene su aserción como prueba de regresión.
-- **Respaldo:** `pg_dump` diario, con restauración probada cada mes.
-- **Disponibilidad:** healthchecks y monitoreo externo.
-- **Migraciones:** versionadas, con imágenes de tag fijo.
+```
+📦 ISY1102-EP1-Plan-Pruebas-Atlas
+├── 📁 pruebas/
+│   ├── 📁 api/            Colección Postman y preparación de datos de prueba
+│   ├── 📁 e2e/            Flujo principal, accesibilidad y capturas de despliegue
+│   ├── 📁 rendimiento/    Script de carga con perfil configurable
+│   ├── 📁 sast/           Revisión de dependencias y calidad del código
+│   ├── 📁 reportes/       Generación de evidencias con fecha y hora
+│   └── 📁 usabilidad/     Guion para sesiones con usuarios
+├── 📁 anexos/             Matriz de trazabilidad y planilla de casos
+├── 📁 laboratorio/        Ambiente de pruebas construido en una etapa anterior
+├── 📁 docs/               Informes y presentaciones de cada etapa
+├── 📁 assets/             Imágenes del repositorio
+└── 📁 .github/workflows/  Pipeline de pruebas para GitHub Actions
+```
 
-## Evolución del trabajo
+---
 
-- **EP1: plan.** Definimos criterios, estrategia y los 9 casos (CP-01 a CP-09), con la matriz de trazabilidad, la colección Postman, el flujo Playwright, el script k6 y el guion SUS. Todo apuntaba a un ambiente QA que todavía no existía.
-- **EP3: ejecución en laboratorio.** Sin ambiente QA disponible, armamos `laboratorio/` a partir de la ERS y ejecutamos ahí los casos (4 pase, 2 fallo). El IDOR y el XSS almacenado ya aparecieron en esa etapa.
-- **EP4: defensa.** Presentamos los hallazgos y la lectura ético-normativa.
-- **Release v2: código oficial.** Con el SUT oficial en Docker, alineamos la suite al contrato real (`openapi.json` y `routes/`) y agregamos un usuario dedicado para el bloqueo, la auditoría con axe-core, SAST sobre el SUT y evidencias con marca de tiempo. El código oficial no implementa varios controles que el laboratorio sí modelaba desde la ERS (roles en backend, hash de contraseñas, bloqueo), por eso aquí fallan casos que antes pasaban.
-- **Cierre del ciclo.**
-  - Se corrigieron las cifras de latencia según la última corrida.
-  - Las capturas de despliegue, SAST y base de datos se reemplazaron por capturas directas.
-  - Se corrigió el reporte de accesibilidad.
-  - Los resultados se consolidaron en el informe final y en la presentación del release.
+## 🗺️ Hoja de ruta
 
-  El próximo ciclo parte cuando se corrijan los incidentes críticos: se vuelve a ejecutar la suite completa y se abordan los 23 requerimientos pendientes.
+**Corrección, en orden de riesgo**
 
-## Grupo
+- [ ] Validar en el servidor el rol y la empresa en cada petición
+- [ ] Guardar las contraseñas con bcrypt y migrar las existentes
+- [ ] Bloquear la cuenta tras 5 intentos y exigir contraseñas de al menos 12 caracteres
+- [ ] Eliminar la espera fija y repetir la carga con 200 usuarios
+- [ ] Actualizar librerías y la imagen base de Node
+- [ ] Corregir tipografía, contraste, botones y diseño en celular
 
-**Grupo 15**: Elías Delgado Manríquez y Rolando Aldana · **Docente**: Johnnathan René Cubillos Flores
+**Continuidad de la calidad**
+
+- [ ] Ejecutar esta suite en cada pull request desde GitHub Actions
+- [ ] Respaldo diario de la base con restauración probada cada mes
+- [ ] Monitoreo de disponibilidad con alertas
+- [ ] Migraciones de base de datos versionadas
+
+---
+
+## 🧱 Trayectoria del proyecto
+
+| Etapa | Qué se hizo |
+|---|---|
+| **1 · Plan de pruebas** | Criterios de calidad, estrategia, nueve casos de prueba y matriz de trazabilidad |
+| **2 · Laboratorio** | Sin ambiente disponible, se construyó un laboratorio desde la especificación y se ejecutaron los casos. Ahí aparecieron los primeros problemas de aislamiento entre empresas |
+| **3 · Defensa** | Presentación de hallazgos y su lectura ética y legal |
+| **4 · Código oficial** | La suite se alineó con la API real y se agregaron accesibilidad, análisis de dependencias y evidencias con fecha. El código oficial no implementa varios controles que el laboratorio sí modelaba, y por eso fallan casos que antes pasaban |
+| **5 · Cierre del ciclo** | Cifras consolidadas desde la última corrida, capturas reales, informe final y presentación del release |
+
+<details>
+<summary><b>Glosario</b></summary>
+
+<br>
+
+| Término | Significado |
+|---|---|
+| **JWT** | Token firmado que identifica al usuario después de iniciar sesión |
+| **RBAC** | Control de acceso según el rol del usuario |
+| **IDOR** | Acceder a un recurso ajeno cambiando su identificador en la petición |
+| **bcrypt** | Algoritmo para guardar contraseñas de forma irreversible |
+| **SAST** | Análisis del código y sus dependencias sin ejecutar la aplicación |
+| **DAST** | Pruebas sobre la aplicación en ejecución |
+| **p95** | Tiempo de respuesta que cumple el 95 % de las peticiones |
+| **WCAG 2.1 AA** | Estándar internacional de accesibilidad web |
+
+</details>
+
+---
+
+<div align="center">
+
+### 👥 Equipo
+
+**Elías Delgado Manríquez** · **Rolando Aldana**
+
+Seguridad y Calidad en el Desarrollo de Software · Duoc UC · Sección 004V<br>
+Docente: Johnnathan René Cubillos Flores
+
+</div>
