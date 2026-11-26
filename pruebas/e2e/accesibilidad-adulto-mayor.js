@@ -88,7 +88,7 @@ ${tabla(['Viewport', 'Ruta', 'Fuente mín.', 'Textos < 12px', 'Contraste (nodos)
 <h2>Violaciones axe-core WCAG 2.1 A/AA</h2>
 ${tabla(['Viewport', 'Ruta', 'Regla', 'Impacto', 'Nodos'], resultados.flatMap((r) => r.axe.map((x) => [r.viewport, r.ruta, x.id, x.impacto, x.nodos])))}
 <h2>Ejemplos de texto &lt; 12px y controles &lt; 44px (móvil)</h2>
-${tabla(['Ruta', 'Texto &lt; 12px', 'Control pequeño'], resultados.filter((r) => r.movil).map((r) => [r.ruta, r.ejemplosBajo12.map((e) => `${e.px}px “${e.txt}”`).join(' · ') || '—', r.ejemplosPequenos.map((e) => `${e.w}x${e.h} “${e.txt}”`).join(' · ') || '—']))}
+${tabla(['Ruta', 'Texto < 12px', 'Control pequeño'], resultados.filter((r) => r.movil).map((r) => [r.ruta, r.ejemplosBajo12.map((e) => `${e.px}px “${e.txt}”`).join(' · ') || '—', r.ejemplosPequenos.map((e) => `${e.w}x${e.h} “${e.txt}”`).join(' · ') || '—']))}
 <div class="row" style="margin-top:14px">${resultados.filter((r) => r.movil).map((r) => `<div><h2>${esc(r.ruta)} · 375px</h2><img class="shot" style="width:260px" src="img/${r.shot}"></div>`).join('')}
 <div style="flex:1"><h2>/home · 1440px</h2><img class="shot" src="img/${resultados.find((r) => !r.movil && r.ruta === '/home').shot}"></div></div>`;
   await renderEvidencia({
