@@ -5,7 +5,7 @@
 <h1 align="center">Atlas: verificación de seguridad y calidad</h1>
 
 <p align="center">
-  Suite QA del <b>Grupo 15</b> (ISY1102, Duoc UC) para <b>Atlas</b>, la plataforma de CreaLab SpA con la que las pymes gestionan clientes, contratos y documentos.
+  Suite QA del <b>Grupo 15</b> (ISY1102) para <b>Atlas</b>, la plataforma de CreaLab SpA con la que las pymes gestionan clientes, contratos y documentos.
 </p>
 
 ## Propósito
