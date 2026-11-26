@@ -4,16 +4,16 @@
 // tengamos acceso a la interfaz real en el ambiente QA.
 const { test, expect } = require('@playwright/test');
 
-const usuario = process.env.ATLAS_USER || 'admin.pyme01';
+const usuario = process.env.ATLAS_USER || 'admin';
 const password = process.env.ATLAS_PASS;
 
 test.describe('CP-09 flujo principal', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
-    await page.getByLabel('Usuario').fill(usuario);
-    await page.getByLabel('Contraseña').fill(password);
-    await page.getByRole('button', { name: 'Ingresar' }).click();
-    await expect(page).toHaveURL(/dashboard/);
+    await page.getByTestId('input-nombre-usuario').fill(usuario);
+    await page.getByTestId('input-password').fill(password);
+    await page.getByTestId('button-login').click();
+    await expect(page).toHaveURL(/home/, { timeout: 15_000 });
   });
 
   test('crear cliente, asociarle un contrato y verlo en auditoría', async ({ page }) => {

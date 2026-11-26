@@ -2,13 +2,19 @@
   "name": "atlas-plan-de-pruebas",
   "version": "1.0.0",
   "private": true,
-  "description": "Pruebas automatizadas propuestas en el plan de pruebas de Atlas (ISY1102 - EP1)",
+  "description": "Suite QA del Grupo 15 para Atlas: API/DAST, E2E, accesibilidad, SAST y carga contra el ambiente Docker oficial",
   "scripts": {
+    "preparar": "node pruebas/api/preparar-datos.js",
     "test:api": "newman run pruebas/api/atlas-endpoints-criticos.postman_collection.json -e pruebas/api/atlas-qa.postman_environment.json",
+    "test:api:docker": "newman run pruebas/api/atlas-endpoints-criticos.postman_collection.json -e pruebas/api/atlas-docker.postman_environment.local.json --working-dir . -r cli,json --reporter-json-export ../evidencias-release/logs/03-newman.json",
+    "test:sast": "node pruebas/sast/sast-atlas.js",
+    "test:a11y": "node pruebas/e2e/accesibilidad-adulto-mayor.js",
     "test:e2e": "playwright test --config pruebas/e2e/playwright.config.js",
-    "test:carga": "k6 run pruebas/rendimiento/carga_atlas.js"
+    "test:carga": "k6 run pruebas/rendimiento/carga_atlas.js",
+    "evidencias": "node pruebas/e2e/capturas-despliegue.js && node pruebas/reportes/evidencias-dast.js"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.1",
     "@playwright/test": "^1.50.0",
     "newman": "^6.2.1"
   }

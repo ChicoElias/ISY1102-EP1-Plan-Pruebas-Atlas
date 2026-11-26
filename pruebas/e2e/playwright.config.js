@@ -8,7 +8,7 @@ module.exports = defineConfig({
   retries: 1,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
-    baseURL: process.env.BASE_URL || 'https://qa.atlas.example',
+    baseURL: process.env.BASE_URL || 'http://localhost:3350',
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
     locale: 'es-CL',

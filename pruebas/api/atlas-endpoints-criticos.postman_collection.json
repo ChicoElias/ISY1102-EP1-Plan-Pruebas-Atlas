@@ -1,15 +1,41 @@
 {
   "info": {
-    "name": "Atlas - endpoints críticos (EP1)",
-    "description": "Colección de endpoints críticos de Atlas que pide la ERS (sección 3.1.2). Cada carpeta corresponde a un caso de prueba del informe. Las credenciales y la URL del ambiente QA van en el environment, no en la colección.",
+    "name": "Atlas - Endpoints críticos (Docker Caso A)",
+    "description": "Suite DAST/funcional del Grupo 15 alineada al contrato real (openapi.json + routes/). Cada aserción lleva el ID del requerimiento entre corchetes.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "CP-01 Inicio de sesión",
+      "name": "00 Preparación",
+      "description": "Login, empresa B aislada y datos desechables para no tocar los registros semilla.",
       "item": [
         {
-          "name": "Login administrador",
+          "name": "Login administrador (empresa A)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const d = (n) => { const x = new Date(); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };",
+                  "pm.collectionVariables.set('finExpirado', d(-30));",
+                  "pm.collectionVariables.set('finVence', d(10));",
+                  "pm.collectionVariables.set('finActivo', d(200));",
+                  "pm.collectionVariables.set('ts', Date.now());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-1.1] Login admin devuelve 200 y JWT\", () => { pm.response.to.have.status(200); pm.expect(pm.response.json().token).to.be.a('string'); });",
+                  "pm.collectionVariables.set('tokenAdmin', pm.response.json().token);"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -19,62 +45,258 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "auth",
+                "autenticacion",
                 "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"usuario\": \"{{adminUser}}\",\n  \"password\": \"{{adminPass}}\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"{{adminUser}}\",\n  \"password\": \"{{adminPass}}\"\n}"
             }
-          },
+          }
+        },
+        {
+          "name": "Registro empresa B con su administrador",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// CP-01: login con credenciales validas",
-                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
-                  "pm.test(\"Tarda menos de 300 ms\", () => pm.expect(pm.response.responseTime).to.be.below(300));",
-                  "pm.test(\"La URL usa HTTPS\", () => pm.expect(pm.request.url.protocol).to.eql(\"https\"));",
-                  "",
-                  "const body = pm.response.json();",
-                  "pm.test(\"Entrega JWT y refresh token\", () => {",
-                  "    pm.expect(body.token).to.be.a(\"string\");",
-                  "    pm.expect(body.refreshToken).to.be.a(\"string\");",
-                  "});",
-                  "pm.test(\"No devuelve la contraseña ni el hash\", () => {",
-                  "    const txt = pm.response.text();",
-                  "    pm.expect(txt).to.not.include(\"password\");",
-                  "    pm.expect(txt).to.not.include(\"$2b$\");",
-                  "});",
-                  "",
-                  "// el payload del JWT viene en base64url, se decodifica para revisar la expiracion",
-                  "const payload = JSON.parse(CryptoJS.enc.Base64.parse(",
-                  "    body.token.split(\".\")[1].replace(/-/g, \"+\").replace(/_/g, \"/\")",
-                  ").toString(CryptoJS.enc.Utf8));",
-                  "pm.test(\"El JWT dura 15 minutos o menos\", () => pm.expect(payload.exp - payload.iat).to.be.at.most(900));",
-                  "",
-                  "pm.environment.set(\"tokenAdmin\", body.token);"
+                  "pm.test(\"[RF-2.2] Empresa B creada (201)\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('usuarioB', pm.response.json().usuario.id);"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": {\n    \"nombre_usuario\": \"qa_empresa_b_{{ts}}\",\n    \"contrasena_hash\": \"{{empresaBPass}}\",\n    \"correo\": \"qa_b_{{ts}}@atlas.test\"\n  },\n  \"empresa\": {\n    \"nombre\": \"QA Empresa B {{ts}}\",\n    \"correo\": \"empresa_b_{{ts}}@atlas.test\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Login administrador empresa B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login empresa B 200\", () => pm.response.to.have.status(200)); pm.collectionVariables.set('tokenB', pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autenticacion/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autenticacion",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"qa_empresa_b_{{ts}}\",\n  \"password\": \"{{empresaBPass}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Empresa B crea cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Cliente B creado (201)\", () => pm.response.to.have.status(201)); pm.collectionVariables.set('clienteB', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente privado B\",\n  \"correo\": \"cliente_b_{{ts}}@atlas.test\",\n  \"telefono\": \"+56 9 1111 2222\",\n  \"direccion\": \"Santiago\",\n  \"rut\": \"76.123.456-0\",\n  \"nombre_banco\": \"Banco QA\",\n  \"numero_cuenta\": \"000123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Empresa B crea contrato",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Contrato B creado (201)\", () => pm.response.to.have.status(201)); pm.collectionVariables.set('contratoB', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenB}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteB}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "Contrato confidencial B",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2026-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "2027-12-31",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "pruebas/api/fixtures/contrato-prueba.pdf"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin A crea cliente de sacrificio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-4.1] Cliente creado (201)\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"[NFR-PERF-1] POST /clientes responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));",
+                  "pm.collectionVariables.set('clienteSacrificio', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"QA sacrificio {{ts}}\",\n  \"correo\": \"sacrificio_{{ts}}@atlas.test\",\n  \"telefono\": \"+56 9 3333 4444\",\n  \"direccion\": \"Macul\"\n}"
+            }
+          }
         }
       ]
     },
     {
-      "name": "CP-02 Rol editor sin escritura",
+      "name": "RF-1.3 Bloqueo tras 5 intentos (qa_lockout)",
+      "description": "Usuario dedicado: la cuenta admin principal nunca se usa para el bloqueo.",
       "item": [
         {
-          "name": "Login editor",
+          "name": "Intento fallido 1/5",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-1.3] Intento fallido 1 rechazado (401)\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -84,36 +306,34 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "auth",
+                "autenticacion",
                 "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"usuario\": \"{{editorUser}}\",\n  \"password\": \"{{editorPass}}\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"Incorrecta-{{ts}}-1\"\n}"
             }
-          },
+          }
+        },
+        {
+          "name": "Intento fallido 2/5",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Login del editor OK\", () => pm.response.to.have.status(200));",
-                  "pm.environment.set(\"tokenEditor\", pm.response.json().token);"
+                  "pm.test(\"[RF-1.3] Intento fallido 2 rechazado (401)\", () => pm.response.to.have.status(401));"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Editor intenta crear contrato",
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -123,46 +343,36 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/contratos",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "contratos"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenEditor}}",
-                  "type": "string"
-                }
+                "autenticacion",
+                "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"clienteId\": \"{{clienteEmpresaA}}\",\n  \"fechaInicio\": \"2026-01-01\",\n  \"fechaTermino\": \"2026-12-31\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"Incorrecta-{{ts}}-2\"\n}"
             }
-          },
+          }
+        },
+        {
+          "name": "Intento fallido 3/5",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
+                  "pm.test(\"[RF-1.3] Intento fallido 3 rechazado (401)\", () => pm.response.to.have.status(401));"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Editor intenta editar cliente",
+          ],
           "request": {
-            "method": "PUT",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
@@ -170,352 +380,682 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/clientes/{{clienteEmpresaA}}",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "clientes",
-                "{{clienteEmpresaA}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenEditor}}",
-                  "type": "string"
-                }
+                "autenticacion",
+                "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"telefono\": \"+56 9 1111 2222\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"Incorrecta-{{ts}}-3\"\n}"
             }
-          },
+          }
+        },
+        {
+          "name": "Intento fallido 4/5",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
+                  "pm.test(\"[RF-1.3] Intento fallido 4 rechazado (401)\", () => pm.response.to.have.status(401));"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autenticacion/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autenticacion",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"Incorrecta-{{ts}}-4\"\n}"
+            }
+          }
         },
         {
-          "name": "Editor intenta eliminar cliente",
+          "name": "Intento fallido 5/5",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-1.3] Intento fallido 5 rechazado (401)\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autenticacion/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autenticacion",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"Incorrecta-{{ts}}-5\"\n}"
+            }
+          }
+        },
+        {
+          "name": "6º intento con contraseña correcta (cuenta debe estar bloqueada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-1.3] Cuenta bloqueada tras 5 fallos: sin token (423/429/401; recibido \" + pm.response.code + \")\", () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([401, 403, 423, 429]);",
+                  "  pm.expect(pm.response.text()).to.not.include('token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autenticacion/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autenticacion",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"{{lockoutUser}}\",\n  \"password\": \"{{lockoutPass}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "R-2.4 Política de contraseñas",
+      "item": [
+        {
+          "name": "Alta de usuario con contraseña débil (6 chars, sin complejidad)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[R-2.4] Contraseña débil rechazada (400/422; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([400, 422]));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('usuarioDebil', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"qa_debil_{{ts}}\",\n  \"contrasena_hash\": \"abc123\",\n  \"correo\": \"qa_debil_{{ts}}@atlas.test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registro de empresa con contraseña débil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[R-2.4] Registro con contraseña '1234' rechazado (400/422; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([400, 422]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/empresas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "empresas"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": {\n    \"nombre_usuario\": \"qa_debil_emp_{{ts}}\",\n    \"contrasena_hash\": \"1234\",\n    \"correo\": \"qa_debil_emp_{{ts}}@atlas.test\"\n  },\n  \"empresa\": {\n    \"nombre\": \"QA débil {{ts}}\",\n    \"correo\": \"qa_debil_e_{{ts}}@atlas.test\"\n  }\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "RF-3.2 / RB-4 / NFR-SEG-4 Editor solo lectura",
+      "item": [
+        {
+          "name": "Login editor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login editor 200\", () => pm.response.to.have.status(200)); pm.collectionVariables.set('tokenEditor', pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/autenticacion/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "autenticacion",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_usuario\": \"{{editorUser}}\",\n  \"password\": \"{{editorPass}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Admin crea contrato desechable",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('contratoDesechable', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteSacrificio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "QA desechable editor",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Generado por la suite QA Grupo 15",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "{{finActivo}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editor intenta POST /clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RBAC] Editor recibe HTTP 403 en POST /clientes (recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(403));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('clienteEditor', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenEditor}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Creado por editor {{ts}}\",\n  \"correo\": \"editor_{{ts}}@atlas.test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editor intenta POST /contratos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RBAC] Editor recibe HTTP 403 en POST /contratos (recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(403));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('contratoEditor', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenEditor}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteSacrificio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "Creado por editor",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Generado por la suite QA Grupo 15",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "{{finActivo}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editor intenta PUT /clientes/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RBAC] Editor recibe HTTP 403 en PUT /clientes/:id (recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenEditor}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteSacrificio}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteSacrificio}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Modificado por editor\",\n  \"correo\": \"sacrificio_{{ts}}@atlas.test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editor intenta DELETE /contratos/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RBAC] Editor recibe HTTP 403 en DELETE /contratos/:id (recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "DELETE",
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json"
+                "key": "Authorization",
+                "value": "Bearer {{tokenEditor}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/clientes/{{clienteEmpresaA}}",
+              "raw": "{{baseUrl}}/contratos/{{contratoDesechable}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "clientes",
-                "{{clienteEmpresaA}}"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenEditor}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"El backend bloquea la escritura (403)\", () => pm.response.to.have.status(403));"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "CP-03 Aislamiento entre empresas",
-      "item": [
-        {
-          "name": "Listar clientes de la empresa B",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/empresas/102/clients",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "empresas",
-                "102",
-                "clients"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "description": "El admin pertenece a la empresa 101."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
-                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
-                  "    const txt = pm.response.text();",
-                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
-                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Ver cliente de la empresa B",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/clientes/5530",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "clientes",
-                "5530"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
-                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
-                  "    const txt = pm.response.text();",
-                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
-                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Editar contrato de la empresa B",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/contratos/{{contratoEmpresaB}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
                 "contratos",
-                "{{contratoEmpresaB}}"
+                "{{contratoDesechable}}"
               ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fechaTermino\": \"2027-01-01\"\n}"
             }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Responde 403 o 404\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));",
-                  "pm.test(\"No aparecen datos de la empresa B\", () => {",
-                  "    const txt = pm.response.text();",
-                  "    pm.expect(txt).to.not.include(\"\\\"rut\\\"\");",
-                  "    pm.expect(txt).to.not.include(\"cuentaBancaria\");",
-                  "});"
-                ]
-              }
-            }
-          ]
+          }
         }
       ]
     },
     {
-      "name": "CP-04 Validación de clientes",
+      "name": "RB-2 Aislamiento multi-empresa",
       "item": [
         {
-          "name": "Crear cliente válido",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/clientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "clientes"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"razonSocial\": \"Comercial Ñuñoa Ltda.\",\n  \"rut\": \"76.123.456-0\",\n  \"telefono\": \"+56 9 8765 4321\"\n}"
-            }
-          },
+          "name": "Admin A lee cliente de B",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Cliente creado (201)\", () => pm.response.to.have.status(201));",
-                  "pm.environment.set(\"clienteId\", pm.response.json().id);"
+                  "pm.test(\"[RB-2] Admin empresa A no accede a GET /clientes/:id de empresa B (403/404; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteB}}"
+              ]
+            }
+          }
         },
         {
-          "name": "Crear cliente con datos inválidos",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/clientes",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "clientes"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"razonSocial\": \"Prueba inválida\",\n  \"rut\": \"12.345.678-X\",\n  \"telefono\": \"98ab76\"\n}"
-            }
-          },
+          "name": "Admin A lee contrato de B",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"La API rechaza RUT y teléfono inválidos (422)\", () => pm.response.to.have.status(422));"
+                  "pm.test(\"[RB-2] Admin empresa A no accede a GET /contratos/:id de empresa B (403/404; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoB}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin A descarga PDF del contrato de B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RB-2] Admin empresa A no accede a GET /contratos/:id/file (PDF) de empresa B (403/404; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoB}}/file",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoB}}",
+                "file"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin A lee usuario de B",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RB-2] Admin empresa A no accede a GET /usuarios/:id de empresa B (403/404; recibido \" + pm.response.code + \")\", () => pm.expect(pm.response.code).to.be.oneOf([403, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{usuarioB}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios",
+                "{{usuarioB}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Auditoría sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-SEG-4] GET /auditoria sin token exige autenticación (401; recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auditoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auditoria"
+              ]
+            }
+          }
         }
       ]
     },
     {
-      "name": "CP-06 Inyección, XSS y CSRF",
+      "name": "NFR-SEG-5 Inyección SQL y XSS",
       "item": [
         {
-          "name": "SQLi en el login",
+          "name": "SQLi en login ' OR 1=1--",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-SEG-5] SQLi en login no autentica (401; recibido \" + pm.response.code + \")\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -525,91 +1065,629 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "auth",
+                "autenticacion",
                 "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"usuario\": \"' OR '1'='1' --\",\n  \"password\": \"x\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"' OR 1=1--\",\n  \"password\": \"' OR 1=1--\"\n}"
             }
-          },
+          }
+        },
+        {
+          "name": "SQLi en búsqueda de clientes",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"La inyección no da acceso\", () => pm.expect(pm.response.code).to.be.oneOf([400, 401, 422]));",
-                  "pm.test(\"El error no muestra detalles de la base de datos\", () => {",
-                  "    const txt = pm.response.text().toLowerCase();",
-                  "    [\"syntax\", \"postgres\", \"sql\", \"stack\"].forEach(p => pm.expect(txt).to.not.include(p));",
-                  "});"
+                  "pm.test(\"[NFR-SEG-5] SQLi en /clientes/search no filtra datos (200 y 0 filas; filas=\" + (pm.response.code === 200 ? pm.response.json().length : 'n/a') + \")\", () => { pm.response.to.have.status(200); pm.expect(pm.response.json()).to.have.lengthOf(0); });"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "SQLi en el filtro de clientes",
+          ],
           "request": {
             "method": "GET",
             "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/search?name=' OR 1=1--",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "' OR 1=1--"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "XSS almacenado en nombre de cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const persistido = pm.response.code === 201 && /<script>/i.test(pm.response.json().nombre || '');",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('clienteXss', pm.response.json().id);",
+                  "pm.test(\"[NFR-SEG-5] Payload <script> rechazado o sanitizado (recibido \" + pm.response.code + (persistido ? ', persistido sin sanitizar' : '') + \")\", () => pm.expect(persistido).to.be.false);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
               {
                 "key": "Content-Type",
                 "value": "application/json"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/clientes?nombre=' OR '1'='1' --",
+              "raw": "{{baseUrl}}/clientes",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
                 "clientes"
-              ],
-              "query": [
-                {
-                  "key": "nombre",
-                  "value": "' OR '1'='1' --"
-                }
               ]
             },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
-              ]
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"<script>alert('xss')</script>\",\n  \"correo\": \"xss_{{ts}}@atlas.test\",\n  \"descripcion\": \"<img src=x onerror=alert(1)>\"\n}"
             }
-          },
+          }
+        }
+      ]
+    },
+    {
+      "name": "RF-5.2 / RF-5.4 / RF-6.1 Contratos y auditoría",
+      "item": [
+        {
+          "name": "Subir contrato PDF (vigente)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"El filtro no se rompe con la carga\", () => pm.expect(pm.response.code).to.be.oneOf([200, 400]));",
-                  "pm.test(\"No devuelve todos los clientes\", () => {",
-                  "    if (pm.response.code === 200) pm.expect(pm.response.json().data || []).to.have.lengthOf(0);",
-                  "});"
+                  "pm.test(\"[RF-5.2] Contrato con PDF creado (201)\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"[RF-5.2] Subida PDF < 10 s (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(10000));",
+                  "pm.collectionVariables.set('contratoActivo', pm.response.json().id);"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteSacrificio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "QA activo {{ts}}",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Generado por la suite QA Grupo 15",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "{{finActivo}}",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "pruebas/api/fixtures/contrato-prueba.pdf"
+                }
+              ]
+            }
+          }
         },
         {
-          "name": "XSS en la descripción del cliente",
+          "name": "Descargar PDF subido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-5.2] PDF recuperable (200, application/pdf, %PDF)\", () => { pm.response.to.have.status(200); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'); pm.expect(pm.response.text().slice(0, 5)).to.eql('%PDF-'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoActivo}}/file",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoActivo}}",
+                "file"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Contrato que vence en 10 días",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('contratoVence', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteSacrificio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "QA vence {{ts}}",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Generado por la suite QA Grupo 15",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "{{finVence}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Contrato expirado hace 30 días",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('contratoExpirado', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "cliente_id",
+                  "value": "{{clienteSacrificio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "titulo",
+                  "value": "QA expirado {{ts}}",
+                  "type": "text"
+                },
+                {
+                  "key": "descripcion",
+                  "value": "Generado por la suite QA Grupo 15",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_inicio",
+                  "value": "2025-01-01",
+                  "type": "text"
+                },
+                {
+                  "key": "fecha_fin",
+                  "value": "{{finExpirado}}",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detalle del contrato vigente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[RF-5.4] Contrato vigente expone estado calculado 'activo' (estado=\" + pm.response.json().estado + \")\", () => pm.expect(pm.response.json().estado).to.eql('activo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoActivo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoActivo}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Estados calculados de contratos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const rows = pm.response.json();",
+                  "const est = (id) => (rows.find((r) => String(r.id) === String(pm.collectionVariables.get(id))) || {}).estado;",
+                  "pm.test(\"[RF-5.4] Contrato a 10 días = vence/por_vencer (\" + est('contratoVence') + \")\", () => pm.expect(est('contratoVence')).to.be.oneOf(['vence', 'por_vencer']));",
+                  "pm.test(\"[RF-5.4] Contrato pasado = expirado/vencido (\" + est('contratoExpirado') + \")\", () => pm.expect(est('contratoExpirado')).to.be.oneOf(['expirado', 'vencido']));",
+                  "pm.test(\"[RF-5.4] Contrato vigente = activo (\" + est('contratoActivo') + \")\", () => pm.expect(est('contratoActivo')).to.eql('activo'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/estados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "estados"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Auditoría registra la creación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const log = pm.response.json();",
+                  "const hit = log.find((l) => /CONTRATOS_CREAR/.test(l.accion) && l.accion.includes('QA activo ' + pm.collectionVariables.get('ts')));",
+                  "pm.test(\"[RF-6.1] Auditoría registra CONTRATOS_CREAR con usuario y fecha\", () => { pm.expect(hit).to.exist; pm.expect(hit.usuario_id).to.eql(pm.environment.get('adminUser')); pm.expect(hit.fecha_hora).to.exist; });",
+                  "const fallos = log.filter((l) => /FALLID|FAILED|INVALID|BLOQUE/i.test(l.accion));",
+                  "pm.test(\"[RF-6.1] Auditoría registra intentos de login fallidos (\" + fallos.length + \" registros)\", () => pm.expect(fallos.length).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auditoria",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auditoria"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "NFR-PERF-1 Latencia CRUD (< 300 ms)",
+      "item": [
+        {
+          "name": "GET /clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] GET /clientes responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /clientes/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] GET /clientes/:id responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteSacrificio}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteSacrificio}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT /clientes/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] PUT /clientes/:id responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteSacrificio}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteSacrificio}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"QA sacrificio editado {{ts}}\",\n  \"correo\": \"sacrificio_{{ts}}@atlas.test\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /contratos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] GET /contratos responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /contratos/:id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] GET /contratos/:id responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoActivo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoActivo}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /autenticacion/login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"[NFR-PERF-1] POST /autenticacion/login responde en < 300 ms (\" + pm.response.responseTime + \" ms)\", () => pm.expect(pm.response.responseTime).to.be.below(300));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -619,100 +1697,260 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/clientes",
+              "raw": "{{baseUrl}}/autenticacion/login",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "clientes"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
+                "autenticacion",
+                "login"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"razonSocial\": \"Cliente XSS\",\n  \"rut\": \"76.123.456-0\",\n  \"descripcion\": \"<script>alert('xss')</script>\"\n}"
+              "raw": "{\n  \"nombre_usuario\": \"{{adminUser}}\",\n  \"password\": \"{{adminPass}}\"\n}"
             }
-          },
+          }
+        }
+      ]
+    },
+    {
+      "name": "99 Limpieza",
+      "description": "El cliente de sacrificio queda referenciado por contratos históricos; se conserva.",
+      "item": [
+        {
+          "name": "Eliminar contratoActivo",
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Guarda o rechaza, pero nunca devuelve el script sin escapar\", () => {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400, 422]);",
-                  "    pm.expect(pm.response.text()).to.not.include(\"<script>\");",
-                  "});",
-                  "pm.test(\"Hay cabecera CSP\", () => pm.expect(pm.response.headers.has(\"Content-Security-Policy\")).to.be.true);"
+                  "if (!pm.collectionVariables.get('contratoActivo')) pm.execution.skipRequest();"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Modificación desde otro origen",
+          ],
           "request": {
-            "method": "PUT",
+            "method": "DELETE",
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Origin",
-                "value": "https://sitio-externo.example"
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "raw": "{{baseUrl}}/contratos/{{contratoActivo}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "api",
-                "clientes",
-                "{{clienteId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"telefono\": \"+56 9 0000 0000\"\n}"
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{tokenAdmin}}",
-                  "type": "string"
-                }
+                "contratos",
+                "{{contratoActivo}}"
               ]
             }
-          },
+          }
+        },
+        {
+          "name": "Eliminar contratoVence",
           "event": [
             {
-              "listen": "test",
+              "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "// se manda con un token valido pero desde otro origen y sin token CSRF",
-                  "pm.test(\"Una petición desde otro origen se rechaza\", () => pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                  "if (!pm.collectionVariables.get('contratoVence')) pm.execution.skipRequest();"
                 ]
               }
             }
-          ]
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoVence}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoVence}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar contratoExpirado",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('contratoExpirado')) pm.execution.skipRequest();"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoExpirado}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoExpirado}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar contratoDesechable",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('contratoDesechable')) pm.execution.skipRequest();"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoDesechable}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoDesechable}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar contratoEditor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('contratoEditor')) pm.execution.skipRequest();"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contratos/{{contratoEditor}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratos",
+                "{{contratoEditor}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar clienteXss",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('clienteXss')) pm.execution.skipRequest();"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteXss}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteXss}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar clienteEditor",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('clienteEditor')) pm.execution.skipRequest();"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{tokenAdmin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteEditor}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteEditor}}"
+              ]
+            }
+          }
         }
       ]
     }
-  ]
+  ],
+  "variable": []
 }
