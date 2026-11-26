@@ -1,57 +1,101 @@
 <p align="center">
-  <img src="assets/duoc.png" alt="Duoc UC" width="300">
+  <img src="assets/duoc.png" alt="Duoc UC" width="260">
 </p>
 
-<h1 align="center">Sistema de Gestión Atlas — Seguridad y Calidad</h1>
+<h1 align="center">Atlas: verificación de seguridad y calidad</h1>
 
 <p align="center">
-  Plan de pruebas, ejecución y defensa del caso semestral de <b>ISY1102</b> (Duoc UC).<br>
-  Atlas es la plataforma web de CreaLab SpA para que pymes gestionen clientes, contratos y documentos.
+  Suite QA del <b>Grupo 15</b> (ISY1102, Duoc UC) para <b>Atlas</b>, la plataforma de CreaLab SpA con la que las pymes gestionan clientes, contratos y documentos.
 </p>
 
-<p align="center">
-  <img src="assets/arquitectura.png" alt="Arquitectura y verificación de Atlas" width="880">
-</p>
+## Propósito
 
-## Las tres entregas
+Verificar el código oficial de Atlas (Caso A, Docker) contra la ERS: requerimientos funcionales (RF), reglas de negocio (RB) y no funcionales (NFR) de seguridad, rendimiento, accesibilidad y compatibilidad. El marco de referencia es la Ley 19.628 / 21.719 de datos personales, OWASP Top 10 y WCAG 2.1 AA.
 
-| Entrega | Qué contiene | Archivos |
+## Stack probado
+
+| Capa | Tecnología | Puerto host |
 |---|---|---|
-| **EP1** | Plan de pruebas: criterios, estrategia, diseño de los 9 casos y trazabilidad | [`docs/EP1…informe`](docs/EP1_ISY1102_Informe_Forma_A_Grupo15.pdf) · [`anexos/`](anexos/) |
-| **EP3** | Ejecución de los casos, hallazgos con su criticidad y análisis ético-normativo | [`docs/EP3…informe`](docs/EP3_ISY1102_Informe_Atlas_Grupo15.docx) |
-| **EP4** | Defensa: presentación y guión | [`deck`](docs/EP4_ISY1102_Presentacion_Atlas_Grupo15.pdf) · [`guión`](docs/EP4_ISY1102_Guion_Defensa_Grupo15.docx) |
+| Frontend | React 19 · MUI 7 · Tailwind · Vite 7 · nginx | `3350` |
+| Backend | Node 18 · Express 4 · JWT · multer · Swagger (`/docs`) | `4450` |
+| Base de datos | PostgreSQL 15 | `15432` |
 
-## Ejecución
+## Flujo QA
 
-Al momento de la evaluación Atlas no tenía un ambiente QA habilitado, así que se levantó uno local (`laboratorio/`) conforme a la ERS y a la colección de endpoints, y las pruebas se ejecutaron ahí.
-
-```bash
-cd laboratorio
-./bootstrap.sh      # levanta API + PostgreSQL en Docker, sobre HTTPS
-./pruebas.sh        # verificación dinámica: autenticación, control de acceso, inyección, carga
-./sast.sh           # análisis estático: Semgrep (código) + npm audit (dependencias)
+```mermaid
+flowchart LR
+  A[Docker<br/>docker-compose up] --> B[SAST<br/>npm audit + ESLint]
+  B --> C[API / DAST<br/>Newman + k6]
+  C --> D[Playwright<br/>axe-core 375px · 1440px]
+  D --> E[PostgreSQL<br/>psql en contenedor]
+  E --> F[Matriz + reporte]
 ```
-
-Resultado: 100 % de los casos ejecutados, 4 en pase y 2 en fallo.
-
-| Hallazgo | Caso | Criticidad |
-|---|---|---|
-| IDOR entre empresas: lectura de RUT y cuenta bancaria de un tercero | CP-03 | **Crítico** |
-| Stored XSS: descripción sin escapar y sin cabecera CSP | CP-06 | **Grave** |
-
-El resto pasó: token seguro con vigencia de 15 minutos, rol editor bloqueado al escribir, validación 201/422 y 200 peticiones concurrentes sin caídas. El análisis estático no halló patrones peligrosos en el código y marcó cuatro dependencias vulnerables; el IDOR no aparece ahí, porque un control de acceso ausente es un fallo de lógica y no un patrón de código, lo que confirma el valor de la prueba dinámica.
 
 ## Estructura
 
 ```
-docs/            informes (EP1, EP3) y defensa (EP4: presentación y guión)
-anexos/          casos de prueba (planilla) y matriz de trazabilidad
-laboratorio/     ambiente QA local: API, base de datos, Docker y scripts
-pruebas/         suites del plan: api, e2e, rendimiento y usabilidad
-assets/          recursos del README
+pruebas/
+  api/           colección Postman (48 requests, IDs de requerimiento en cada aserción) + preparar-datos.js
+  e2e/           capturas de despliegue, auditoría de accesibilidad, flujo principal (CP-09)
+  rendimiento/   carga_atlas.js (k6, perfil configurable por variables)
+  sast/          sast-atlas.js: npm audit backend/frontend + ESLint
+  reportes/      renderizado de evidencias (HTML → PNG con marca de tiempo)
+  usabilidad/    guion de sesión SUS
+anexos/          matriz de trazabilidad (estado, captura, incidente) y planilla de casos
+laboratorio/     ambiente QA local usado en EP3
+docs/            informes EP1 / EP3 y defensa EP4
 ```
+
+## Comandos rápidos
+
+```bash
+# 1. SUT oficial (carpeta hermana)
+cd ../CodigoFuenteETA && docker-compose up -d --build
+
+# 2. Suite
+cd ../ISY1102-EP1-Plan-Pruebas-Atlas
+npm install && npx playwright install chromium
+npm run preparar           # qa_lockout + environment local (*.local.json, fuera de git)
+npm run test:api:docker    # RF / RB / NFR-SEG vía Newman
+npm run test:sast
+npm run test:a11y          # NFR-USAB-1, NFR-COMPAT-2
+npm run evidencias         # CAP-02, CAP-04..CAP-07
+
+# carga sin k6 local, desde la red de Docker
+docker run --rm -i --network atlas-network -e BASE_URL=http://atlas-backend:4000 \
+  -e ATLAS_USER=admin -e ATLAS_PASS=... -e VUS=10 -e SUBIDA=15s -e MESETA=45s -e BAJADA=5s \
+  grafana/k6 run - < pruebas/rendimiento/carga_atlas.js
+```
+
+Las evidencias se escriben en `../evidencias-release/` (`capturas/`, `logs/`, `html/` y `REPORTE_VERIFICACION_ATLAS_V2.md`).
+
+## Cobertura y hallazgos (release v2, 2026-11-26)
+
+22 requerimientos ejecutados: **7 PASS · 15 FAIL**. El detalle está en [`anexos/matriz-trazabilidad.csv`](anexos/matriz-trazabilidad.csv).
+
+| Requerimiento | Estado | Severidad | Hallazgo |
+|---|---|---|---|
+| RF-3.2 · RB-4 · NFR-SEG-4 | FAIL | Crítico | El backend no aplica roles: el editor crea, edita y elimina |
+| RB-2 | FAIL | Crítico | IDOR: contratos, PDF y usuarios de otra empresa accesibles por id |
+| NFR-SEG-2 | FAIL | Crítico | Contraseñas en texto plano (0/9 con bcrypt) |
+| RF-1.3 | FAIL | Grave | Sin bloqueo tras 5 intentos fallidos |
+| R-2.4 | FAIL | Grave | Acepta contraseñas de 4 caracteres |
+| SAST-1 | FAIL | Grave | 1 critical y 22 high entre backend y frontend; base Node 18 EOL |
+| NFR-PERF-1 | FAIL | Grave | p95 CRUD de 4004 ms por `delay(4000)` en login y listados |
+| NFR-SEG-5 · RF-4.3 | FAIL | Moderado | SQLi neutralizada; `<script>` se persiste sin sanitizar |
+| RF-5.4 | FAIL | Moderado | No existe el estado `activo` |
+| RF-6.1 | FAIL | Moderado | Los logins fallidos no se auditan |
+| NFR-USAB-1 | FAIL | Moderado | Texto de 10.5px, contraste, botones sin nombre, objetivos < 44px |
+| NFR-COMPAT-2 | FAIL | Moderado | En 375px el contenido queda en 135px (drawer permanente) |
+| RF-1.1 · RF-2.1 · RF-2.2 · RF-4.1 · RF-5.1 · RF-5.2 · RF-5.3 | PASS | — | Login JWT, registro, alta de cliente y contrato, PDF en 52 ms y recuperable |
+
+## Evolución del trabajo
+
+- **EP1: plan.** Definimos criterios, estrategia y los 9 casos (CP-01 a CP-09), con la matriz de trazabilidad, la colección Postman, el flujo Playwright, el script k6 y el guion SUS. Todo apuntaba a un ambiente QA que todavía no existía.
+- **EP3: ejecución en laboratorio.** Sin ambiente QA disponible, armamos `laboratorio/` a partir de la ERS y ejecutamos ahí los casos (4 pase, 2 fallo). El IDOR y el XSS almacenado ya aparecieron en esa etapa.
+- **EP4: defensa.** Presentamos los hallazgos y la lectura ético-normativa.
+- **Release v2: código oficial.** Con el SUT oficial en Docker, alineamos la suite al contrato real (`openapi.json` y `routes/`) y agregamos un usuario dedicado para el bloqueo, la auditoría con axe-core, SAST sobre el SUT y evidencias con marca de tiempo. El código oficial no implementa varios controles que el laboratorio sí modelaba desde la ERS (roles en backend, hash de contraseñas, bloqueo), por eso aquí fallan casos que antes pasaban.
 
 ## Grupo
 
-**Grupo 15** — Elías Delgado Manríquez y Rolando Aldana
-**Docente** — Johnnathan René Cubillos Flores
+**Grupo 15**: Elías Delgado Manríquez y Rolando Aldana · **Docente**: Johnnathan René Cubillos Flores
